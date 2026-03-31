@@ -6,797 +6,1120 @@
 <title>Need Consultancy — Output Tracker</title>
 <style>
   @import url('https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;1,9..40,400&family=JetBrains+Mono:wght@400;500&display=swap');
-  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-  :root {
-    --bg: #0D0D0D; --card: #161616; --card2: #1C1C1C; --border: #242424;
-    --accent: #E8C547; --accent-dim: rgba(232,197,71,0.12); --accent-glow: rgba(232,197,71,0.06);
-    --text: #F0F0F0; --text-dim: #666; --text-mid: #999;
-    --green: #4ADE80; --green-dim: rgba(74,222,128,0.12);
-    --blue: #60A5FA; --blue-dim: rgba(96,165,250,0.12);
-    --red: #F87171; --red-dim: rgba(248,113,113,0.12);
+  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+  :root{
+    --bg:#0D0D0D;--card:#161616;--card2:#1C1C1C;--border:#242424;
+    --accent:#E8C547;--accent-dim:rgba(232,197,71,0.12);--accent-glow:rgba(232,197,71,0.06);
+    --text:#F0F0F0;--text-dim:#666;--text-mid:#999;
+    --green:#4ADE80;--green-dim:rgba(74,222,128,0.12);
+    --blue:#60A5FA;--blue-dim:rgba(96,165,250,0.12);
+    --red:#F87171;--red-dim:rgba(248,113,113,0.12);
+    --orange:#FB923C;--orange-dim:rgba(251,146,60,0.12);
+    --purple:#C084FC;--purple-dim:rgba(192,132,252,0.12);
   }
-  html, body { background: var(--bg); color: var(--text); font-family: 'DM Sans', sans-serif; min-height: 100vh; font-size: 14px; -webkit-font-smoothing: antialiased; }
-  input, select, textarea, button { font-family: inherit; }
-  input:focus, select:focus, textarea:focus { outline: none; border-color: var(--accent) !important; box-shadow: 0 0 0 3px var(--accent-glow); }
-  select option { background: #1C1C1C; }
-  ::-webkit-scrollbar { width: 4px; height: 4px; } ::-webkit-scrollbar-track { background: transparent; } ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
-  .app { display: flex; flex-direction: column; min-height: 100vh; }
-  .header { border-bottom: 1px solid var(--border); padding: 0 28px; position: sticky; top: 0; background: rgba(13,13,13,0.95); backdrop-filter: blur(8px); z-index: 100; }
-  .header-inner { max-width: 1000px; margin: 0 auto; display: flex; align-items: center; justify-content: space-between; height: 56px; }
-  .logo { display: flex; align-items: center; gap: 12px; }
-  .logo-bar { background: var(--accent); width: 4px; height: 26px; border-radius: 2px; }
-  .logo-text { display: flex; flex-direction: column; gap: 1px; }
-  .logo-name { font-family: 'Syne', sans-serif; font-weight: 800; font-size: 14px; letter-spacing: 0.06em; color: var(--text); }
-  .logo-sub { font-family: 'JetBrains Mono', monospace; font-size: 9px; color: var(--text-dim); letter-spacing: 0.14em; }
-  .header-date { font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--text-dim); }
-  .sync-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--green); display: inline-block; margin-left: 8px; }
-  .sync-dot.syncing { background: var(--accent); animation: pulse 1s infinite; }
-  .sync-dot.error { background: var(--red); }
-  @keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: 0.3; } }
-  .tabs { border-bottom: 1px solid var(--border); padding: 0 28px; background: var(--bg); }
-  .tabs-inner { max-width: 1000px; margin: 0 auto; display: flex; }
-  .tab { background: none; border: none; border-bottom: 2px solid transparent; padding: 14px 20px; font-family: 'Syne', sans-serif; font-weight: 700; font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--text-dim); cursor: pointer; transition: all 0.2s; margin-bottom: -1px; }
-  .tab.active { color: var(--accent); border-bottom-color: var(--accent); }
-  .tab:hover:not(.active) { color: var(--text-mid); }
-  .content { max-width: 1000px; margin: 0 auto; padding: 36px 28px; flex: 1; width: 100%; }
-  .field-label { display: block; font-family: 'JetBrains Mono', monospace; font-size: 10px; color: var(--text-dim); letter-spacing: 0.12em; text-transform: uppercase; margin-bottom: 8px; }
-  .field-input { width: 100%; background: var(--card2); border: 1px solid var(--border); color: var(--text); font-family: 'DM Sans', sans-serif; font-size: 14px; padding: 10px 14px; border-radius: 5px; transition: border-color 0.2s, box-shadow 0.2s; }
-  .field-input::placeholder { color: var(--text-dim); }
-  .field-input[type="date"] { color-scheme: dark; }
-  .field-input[type="url"] { color: var(--blue); }
-  .toggle-group { display: flex; background: var(--card2); border: 1px solid var(--border); border-radius: 5px; overflow: hidden; }
-  .toggle-btn { flex: 1; padding: 9px 8px; border: none; background: none; cursor: pointer; font-family: 'DM Sans', sans-serif; font-size: 13px; color: var(--text-dim); transition: all 0.15s; }
-  .toggle-btn.active { color: var(--accent); background: var(--accent-dim); font-weight: 500; }
-  .btn-primary { background: var(--accent); color: #0D0D0D; border: none; padding: 12px 28px; font-family: 'Syne', sans-serif; font-weight: 700; font-size: 13px; letter-spacing: 0.06em; cursor: pointer; border-radius: 5px; transition: opacity 0.2s, transform 0.1s; width: 100%; }
-  .btn-primary:hover:not(:disabled) { opacity: 0.88; }
-  .btn-primary:active:not(:disabled) { transform: scale(0.99); }
-  .btn-primary:disabled { opacity: 0.35; cursor: not-allowed; }
-  .btn-ghost { background: none; border: 1px solid var(--border); color: var(--text-mid); padding: 9px 18px; font-family: 'DM Sans', sans-serif; font-size: 13px; cursor: pointer; border-radius: 5px; transition: all 0.2s; }
-  .btn-ghost:hover { border-color: var(--text-dim); color: var(--text); }
-  .btn-ghost-sm { background: none; border: 1px solid var(--border); color: var(--text-mid); padding: 7px 14px; font-family: 'DM Sans', sans-serif; font-size: 12px; cursor: pointer; border-radius: 4px; transition: all 0.2s; }
-  .btn-ghost-sm:hover { border-color: var(--accent); color: var(--accent); }
-  .btn-remove { background: none; border: 1px solid transparent; color: var(--text-dim); padding: 4px 10px; font-family: 'DM Sans', sans-serif; font-size: 12px; cursor: pointer; border-radius: 4px; transition: all 0.15s; }
-  .btn-remove:hover { border-color: var(--red-dim); color: var(--red); background: var(--red-dim); }
-  .task-card { background: var(--card); border: 1px solid var(--border); border-radius: 8px; padding: 18px; transition: border-color 0.2s; margin-bottom: 12px; }
-  .task-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; }
-  .task-num { font-family: 'JetBrains Mono', monospace; font-size: 10px; color: var(--text-dim); letter-spacing: 0.1em; }
-  .stat-card { background: var(--card); border: 1px solid var(--border); border-radius: 8px; padding: 20px; }
-  .stat-num { font-family: 'JetBrains Mono', monospace; font-size: 38px; font-weight: 500; color: var(--accent); line-height: 1; margin-bottom: 6px; }
-  .stat-label { font-family: 'DM Sans', sans-serif; font-size: 12px; color: var(--text-dim); }
-  .data-table { width: 100%; background: var(--card); border: 1px solid var(--border); border-radius: 8px; overflow: hidden; border-collapse: collapse; }
-  .data-table th { padding: 11px 16px; text-align: left; font-family: 'JetBrains Mono', monospace; font-size: 9px; color: var(--text-dim); letter-spacing: 0.12em; font-weight: 400; border-bottom: 1px solid var(--border); background: rgba(255,255,255,0.01); }
-  .data-table td { padding: 13px 16px; border-bottom: 1px solid var(--border); }
-  .data-table tr:last-child td { border-bottom: none; }
-  .data-table tr:hover td { background: rgba(255,255,255,0.01); }
-  .data-num { font-family: 'JetBrains Mono', monospace; font-size: 15px; }
-  .data-name { font-family: 'Syne', sans-serif; font-weight: 600; font-size: 14px; }
-  .role-tag { font-family: 'JetBrains Mono', monospace; font-size: 10px; color: var(--text-dim); }
-  .badge { display: inline-block; padding: 2px 7px; border-radius: 3px; font-family: 'JetBrains Mono', monospace; font-size: 9px; letter-spacing: 0.06em; text-transform: uppercase; }
-  .badge-client { background: var(--green-dim); color: var(--green); }
-  .badge-internal { background: var(--blue-dim); color: var(--blue); }
-  .badge-video { background: var(--accent-dim); color: var(--accent); }
-  .badge-graphic { background: var(--red-dim); color: var(--red); }
-  .section-title { font-family: 'Syne', sans-serif; font-weight: 700; font-size: 20px; }
-  .section-sub { font-family: 'DM Sans', sans-serif; font-size: 13px; color: var(--text-dim); margin-top: 4px; }
-  .table-header-bar { display: flex; justify-content: space-between; align-items: center; padding: 14px 20px; border-bottom: 1px solid var(--border); }
-  .table-title { font-family: 'Syne', sans-serif; font-weight: 700; font-size: 13px; }
-  .log-item { padding: 14px 20px; border-bottom: 1px solid var(--border); }
-  .log-item:last-child { border-bottom: none; }
-  .log-meta { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
-  .log-name { font-family: 'Syne', sans-serif; font-weight: 600; font-size: 14px; }
-  .log-date { font-family: 'JetBrains Mono', monospace; font-size: 10px; color: var(--text-dim); }
-  .log-tasks { display: flex; flex-wrap: wrap; gap: 6px; }
-  .log-task-pill { display: flex; align-items: center; gap: 6px; background: var(--card2); border-radius: 5px; padding: 5px 10px; }
-  .log-task-name { font-size: 13px; color: var(--text-mid); }
-  .log-task-qty { font-family: 'JetBrains Mono', monospace; font-size: 12px; color: var(--accent); }
-  .drive-link { font-family: 'JetBrains Mono', monospace; font-size: 10px; color: var(--blue); text-decoration: none; }
-  .drive-link:hover { text-decoration: underline; }
-  .success-msg { background: var(--green-dim); border: 1px solid rgba(74,222,128,0.25); border-radius: 6px; padding: 12px 16px; color: var(--green); font-size: 14px; margin-bottom: 16px; }
-  .error-msg { background: var(--red-dim); border: 1px solid rgba(248,113,113,0.25); border-radius: 6px; padding: 12px 16px; color: var(--red); font-size: 14px; margin-bottom: 16px; }
-  .pin-screen { max-width: 340px; margin: 60px auto; text-align: center; }
-  .pin-title { font-family: 'Syne', sans-serif; font-weight: 700; font-size: 20px; margin-bottom: 8px; }
-  .pin-sub { color: var(--text-dim); font-size: 14px; margin-bottom: 28px; }
-  .pin-hint { margin-top: 16px; font-family: 'JetBrains Mono', monospace; font-size: 10px; color: #333; }
-  .empty { padding: 32px; text-align: center; color: var(--text-dim); font-size: 14px; }
-  .loading-screen { display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 60vh; gap: 16px; }
-  .loading-spinner { width: 32px; height: 32px; border: 2px solid var(--border); border-top-color: var(--accent); border-radius: 50%; animation: spin 0.8s linear infinite; }
-  @keyframes spin { to { transform: rotate(360deg); } }
-  .loading-text { font-family: 'JetBrains Mono', monospace; font-size: 12px; color: var(--text-dim); }
-  .bar-wrap { display: flex; align-items: center; gap: 8px; }
-  .bar-bg { flex: 1; height: 4px; background: var(--border); border-radius: 2px; overflow: hidden; }
-  .bar-fill { height: 100%; border-radius: 2px; background: var(--accent); }
-  .insight-card { background: var(--card); border: 1px solid var(--border); border-radius: 8px; padding: 18px 20px; display: flex; align-items: flex-start; gap: 14px; margin-bottom: 12px; }
-  .insight-icon { font-size: 18px; flex-shrink: 0; margin-top: 2px; }
-  .insight-body { flex: 1; }
-  .insight-title { font-family: 'Syne', sans-serif; font-weight: 600; font-size: 13px; margin-bottom: 4px; }
-  .insight-text { font-size: 13px; color: var(--text-dim); line-height: 1.5; }
-  .settings-section { background: var(--card); border: 1px solid var(--border); border-radius: 8px; overflow: hidden; margin-bottom: 20px; }
-  .settings-header { padding: 16px 20px; border-bottom: 1px solid var(--border); }
-  .settings-title { font-family: 'Syne', sans-serif; font-weight: 700; font-size: 14px; }
-  .settings-body { padding: 20px; }
-  .pill-list { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 14px; min-height: 32px; }
-  .pill-item { display: flex; align-items: center; gap: 6px; background: var(--card2); border: 1px solid var(--border); border-radius: 20px; padding: 5px 12px; font-size: 13px; }
-  .pill-role { font-family: 'JetBrains Mono', monospace; font-size: 9px; color: var(--text-dim); }
-  .pill-remove { background: none; border: none; cursor: pointer; color: var(--text-dim); font-size: 14px; padding: 0 0 0 4px; line-height: 1; transition: color 0.15s; }
-  .pill-remove:hover { color: var(--red); }
-  .add-row { display: flex; gap: 8px; }
-  .add-row .field-input { flex: 1; }
-  @keyframes fadeIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
-  .fade-in { animation: fadeIn 0.3s ease forwards; }
-  .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
-  .grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 14px; }
-  .grid-4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; }
-  @media (max-width: 600px) {
-    .grid-2, .grid-3, .grid-4 { grid-template-columns: 1fr; }
-    .content { padding: 20px 16px; }
-    .header { padding: 0 16px; }
-    .tabs { padding: 0 16px; }
-    .tab { padding: 14px 12px; font-size: 10px; }
-    .data-table { font-size: 12px; }
-    .data-table th, .data-table td { padding: 10px 10px; }
+  html,body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;min-height:100vh;font-size:14px;-webkit-font-smoothing:antialiased}
+  input,select,button{font-family:inherit}
+  input:focus,select:focus{outline:none;border-color:var(--accent)!important;box-shadow:0 0 0 3px var(--accent-glow)}
+  select option{background:#1C1C1C}
+  ::-webkit-scrollbar{width:4px}::-webkit-scrollbar-track{background:transparent}::-webkit-scrollbar-thumb{background:var(--border);border-radius:2px}
+  .app{display:flex;flex-direction:column;min-height:100vh}
+  /* Header */
+  .header{border-bottom:1px solid var(--border);padding:0 28px;position:sticky;top:0;background:rgba(13,13,13,0.95);backdrop-filter:blur(8px);z-index:100}
+  .header-inner{max-width:1040px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;height:56px}
+  .logo{display:flex;align-items:center;gap:12px}
+  .logo-bar{background:var(--accent);width:4px;height:26px;border-radius:2px}
+  .logo-text{display:flex;flex-direction:column;gap:1px}
+  .logo-name{font-family:'Syne',sans-serif;font-weight:800;font-size:14px;letter-spacing:.06em}
+  .logo-sub{font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--text-dim);letter-spacing:.14em}
+  .header-right{display:flex;align-items:center;gap:12px}
+  .header-user{display:flex;align-items:center;gap:10px;background:var(--card2);border:1px solid var(--border);border-radius:20px;padding:5px 14px}
+  .header-user-name{font-family:'Syne',sans-serif;font-weight:600;font-size:12px}
+  .header-user-role{font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--text-dim)}
+  .btn-signout{background:none;border:none;color:var(--text-dim);cursor:pointer;font-size:11px;font-family:'JetBrains Mono',monospace;transition:color .15s;padding:0}
+  .btn-signout:hover{color:var(--red)}
+  .sync-dot{width:6px;height:6px;border-radius:50%;background:var(--green);flex-shrink:0;display:inline-block}
+  .sync-dot.syncing{background:var(--accent);animation:pulse 1s infinite}
+  .sync-dot.error{background:var(--red)}
+  @keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
+  /* Tabs */
+  .tabs{border-bottom:1px solid var(--border);padding:0 28px}
+  .tabs-inner{max-width:1040px;margin:0 auto;display:flex}
+  .tab{background:none;border:none;border-bottom:2px solid transparent;padding:14px 20px;font-family:'Syne',sans-serif;font-weight:700;font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--text-dim);cursor:pointer;transition:all .2s;margin-bottom:-1px}
+  .tab.active{color:var(--accent);border-bottom-color:var(--accent)}
+  .tab:hover:not(.active){color:var(--text-mid)}
+  /* Sub-tabs */
+  .subtabs{display:flex;gap:4px;margin-bottom:28px}
+  .subtab{background:none;border:1px solid var(--border);color:var(--text-dim);padding:7px 16px;font-family:'Syne',sans-serif;font-weight:700;font-size:11px;letter-spacing:.08em;text-transform:uppercase;cursor:pointer;border-radius:5px;transition:all .2s}
+  .subtab.active{background:var(--accent-dim);border-color:rgba(232,197,71,.4);color:var(--accent)}
+  .subtab:hover:not(.active){border-color:var(--text-dim);color:var(--text-mid)}
+  /* Content */
+  .content{max-width:1040px;margin:0 auto;padding:36px 28px;flex:1;width:100%}
+  .content-narrow{max-width:680px;margin:0 auto;padding:36px 28px;flex:1;width:100%}
+  /* Fields */
+  .field-label{display:block;font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--text-dim);letter-spacing:.12em;text-transform:uppercase;margin-bottom:8px}
+  .field-input{width:100%;background:var(--card2);border:1px solid var(--border);color:var(--text);font-size:14px;padding:10px 14px;border-radius:5px;transition:border-color .2s,box-shadow .2s}
+  .field-input::placeholder{color:var(--text-dim)}
+  .field-input[type="date"]{color-scheme:dark}
+  .field-input[type="url"]{color:var(--blue)}
+  .toggle-group{display:flex;background:var(--card2);border:1px solid var(--border);border-radius:5px;overflow:hidden}
+  .toggle-btn{flex:1;padding:9px 8px;border:none;background:none;cursor:pointer;font-size:13px;color:var(--text-dim);transition:all .15s}
+  .toggle-btn.active{color:var(--accent);background:var(--accent-dim);font-weight:500}
+  /* Buttons */
+  .btn-primary{background:var(--accent);color:#0D0D0D;border:none;padding:12px 28px;font-family:'Syne',sans-serif;font-weight:700;font-size:13px;letter-spacing:.06em;cursor:pointer;border-radius:5px;transition:opacity .2s;width:100%}
+  .btn-primary:hover:not(:disabled){opacity:.88}
+  .btn-primary:disabled{opacity:.35;cursor:not-allowed}
+  .btn-ghost{background:none;border:1px solid var(--border);color:var(--text-mid);padding:9px 18px;font-size:13px;cursor:pointer;border-radius:5px;transition:all .2s}
+  .btn-ghost:hover{border-color:var(--text-dim);color:var(--text)}
+  .btn-ghost-sm{background:none;border:1px solid var(--border);color:var(--text-mid);padding:7px 14px;font-size:12px;cursor:pointer;border-radius:4px;transition:all .2s}
+  .btn-ghost-sm:hover{border-color:var(--accent);color:var(--accent)}
+  .btn-remove{background:none;border:1px solid transparent;color:var(--text-dim);padding:4px 10px;font-size:12px;cursor:pointer;border-radius:4px;transition:all .15s}
+  .btn-remove:hover{border-color:var(--red-dim);color:var(--red);background:var(--red-dim)}
+  .btn-edit{background:none;border:1px solid var(--border);color:var(--text-mid);padding:4px 10px;font-size:11px;font-family:'JetBrains Mono',monospace;cursor:pointer;border-radius:4px;transition:all .15s}
+  .btn-edit:hover{border-color:var(--accent);color:var(--accent)}
+  .btn-del{background:none;border:1px solid transparent;color:var(--text-dim);padding:4px 10px;font-size:11px;font-family:'JetBrains Mono',monospace;cursor:pointer;border-radius:4px;transition:all .15s}
+  .btn-del:hover{border-color:var(--red-dim);color:var(--red);background:var(--red-dim)}
+  .btn-note{background:none;border:1px solid var(--border);color:var(--text-dim);padding:4px 10px;font-size:11px;font-family:'JetBrains Mono',monospace;cursor:pointer;border-radius:4px;transition:all .15s}
+  .btn-note:hover{border-color:var(--purple);color:var(--purple);background:var(--purple-dim)}
+  .btn-note.has-note{border-color:rgba(192,132,252,.4);color:var(--purple);background:var(--purple-dim)}
+  /* Cards */
+  .task-card{background:var(--card);border:1px solid var(--border);border-radius:8px;padding:18px;margin-bottom:12px}
+  .task-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px}
+  .task-num{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--text-dim);letter-spacing:.1em}
+  .stat-card{background:var(--card);border:1px solid var(--border);border-radius:8px;padding:20px}
+  .stat-num{font-family:'JetBrains Mono',monospace;font-size:38px;font-weight:500;color:var(--accent);line-height:1;margin-bottom:6px}
+  .stat-label{font-size:12px;color:var(--text-dim)}
+  /* Client cards */
+  .client-card{background:var(--card);border:1px solid var(--border);border-radius:8px;padding:20px;transition:border-color .2s}
+  .client-card:hover{border-color:#333}
+  .client-card-name{font-family:'Syne',sans-serif;font-weight:700;font-size:16px;margin-bottom:12px}
+  .client-stat-row{display:flex;gap:16px;margin-bottom:12px;flex-wrap:wrap}
+  .client-stat{display:flex;flex-direction:column;gap:3px}
+  .client-stat-val{font-family:'JetBrains Mono',monospace;font-size:22px;color:var(--accent);line-height:1}
+  .client-stat-lbl{font-size:11px;color:var(--text-dim)}
+  .client-editors{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
+  .editor-tag{background:var(--card2);border:1px solid var(--border);border-radius:12px;padding:3px 10px;font-size:11px;color:var(--text-mid);font-family:'JetBrains Mono',monospace}
+  .clients-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:16px;margin-bottom:28px}
+  /* Capacity */
+  .capacity-section{background:var(--card);border:1px solid var(--border);border-radius:8px;padding:20px;margin-bottom:24px}
+  .capacity-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px}
+  .capacity-title{font-family:'Syne',sans-serif;font-weight:700;font-size:13px}
+  .capacity-headline{font-family:'JetBrains Mono',monospace;font-size:28px;font-weight:500;color:var(--accent)}
+  .capacity-headline.low{color:var(--red)}
+  .capacity-headline.mid{color:var(--orange)}
+  .capacity-headline.high{color:var(--green)}
+  .capacity-rows{display:flex;flex-direction:column;gap:12px}
+  .capacity-row{display:flex;align-items:center;gap:12px}
+  .capacity-name{width:110px;font-family:'Syne',sans-serif;font-weight:600;font-size:13px;flex-shrink:0}
+  .capacity-bar-wrap{flex:1;height:6px;background:var(--border);border-radius:3px;overflow:hidden}
+  .capacity-bar-fill{height:100%;border-radius:3px;transition:width .6s ease}
+  .capacity-nums{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--text-dim);width:80px;text-align:right;flex-shrink:0}
+  .capacity-pct{font-family:'JetBrains Mono',monospace;font-size:11px;width:36px;text-align:right;flex-shrink:0}
+  /* Table */
+  .data-table{width:100%;background:var(--card);border:1px solid var(--border);border-radius:8px;overflow:hidden;border-collapse:collapse}
+  .data-table th{padding:11px 16px;text-align:left;font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--text-dim);letter-spacing:.12em;font-weight:400;border-bottom:1px solid var(--border)}
+  .data-table td{padding:13px 16px;border-bottom:1px solid var(--border)}
+  .data-table tr:last-child td{border-bottom:none}
+  .data-table tr:hover td{background:rgba(255,255,255,.01)}
+  .data-num{font-family:'JetBrains Mono',monospace;font-size:15px}
+  .data-name{font-family:'Syne',sans-serif;font-weight:600;font-size:14px}
+  .role-tag{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--text-dim)}
+  /* Badges */
+  .badge{display:inline-block;padding:2px 7px;border-radius:3px;font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:.06em;text-transform:uppercase}
+  .badge-client{background:var(--green-dim);color:var(--green)}
+  .badge-internal{background:var(--blue-dim);color:var(--blue)}
+  .badge-video{background:var(--accent-dim);color:var(--accent)}
+  .badge-graphic{background:var(--red-dim);color:var(--red)}
+  /* Section */
+  .section-title{font-family:'Syne',sans-serif;font-weight:700;font-size:20px}
+  .section-sub{font-size:13px;color:var(--text-dim);margin-top:4px}
+  .table-header-bar{display:flex;justify-content:space-between;align-items:center;padding:14px 20px;border-bottom:1px solid var(--border);flex-wrap:wrap;gap:8px}
+  .table-title{font-family:'Syne',sans-serif;font-weight:700;font-size:13px}
+  /* Log items */
+  .log-item{padding:14px 20px;border-bottom:1px solid var(--border)}
+  .log-item:last-child{border-bottom:none}
+  .log-meta{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;flex-wrap:wrap;gap:6px}
+  .log-name{font-family:'Syne',sans-serif;font-weight:600;font-size:14px}
+  .log-date{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--text-dim)}
+  .log-actions{display:flex;gap:6px;flex-wrap:wrap}
+  .log-tasks{display:flex;flex-wrap:wrap;gap:6px}
+  .log-task-pill{display:flex;align-items:center;gap:6px;background:var(--card2);border-radius:5px;padding:5px 10px}
+  .log-task-name{font-size:13px;color:var(--text-mid)}
+  .log-task-qty{font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--accent)}
+  .drive-link{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--blue);text-decoration:none}
+  .drive-link:hover{text-decoration:underline}
+  /* Manager note */
+  .manager-note-display{margin-top:8px;background:var(--purple-dim);border:1px solid rgba(192,132,252,.2);border-radius:5px;padding:8px 12px;font-size:12px;color:var(--purple);display:flex;align-items:flex-start;gap:8px}
+  .manager-note-icon{flex-shrink:0;font-size:13px}
+  .manager-note-text{flex:1;line-height:1.5}
+  .note-edit-row{margin-top:8px;display:flex;gap:8px}
+  .note-edit-input{flex:1;background:var(--card2);border:1px solid rgba(192,132,252,.4);color:var(--text);font-size:13px;padding:8px 12px;border-radius:5px;transition:border-color .2s}
+  .note-edit-input:focus{outline:none;border-color:var(--purple)!important;box-shadow:0 0 0 3px rgba(192,132,252,.1)}
+  .note-edit-input::placeholder{color:var(--text-dim)}
+  /* Messages */
+  .success-msg{background:var(--green-dim);border:1px solid rgba(74,222,128,.25);border-radius:6px;padding:12px 16px;color:var(--green);font-size:14px;margin-bottom:16px}
+  .error-msg{background:var(--red-dim);border:1px solid rgba(248,113,113,.25);border-radius:6px;padding:12px 16px;color:var(--red);font-size:14px;margin-bottom:16px}
+  .editing-banner{background:var(--orange-dim);border:1px solid rgba(251,146,60,.3);border-radius:6px;padding:10px 16px;color:var(--orange);font-size:13px;margin-bottom:16px;display:flex;justify-content:space-between;align-items:center}
+  /* Auth */
+  .auth-screen{max-width:380px;margin:50px auto}
+  .auth-title{font-family:'Syne',sans-serif;font-weight:700;font-size:22px;margin-bottom:6px}
+  .auth-sub{color:var(--text-dim);font-size:14px;margin-bottom:28px}
+  .member-grid{display:flex;flex-direction:column;gap:8px;margin-bottom:20px}
+  .member-btn{background:var(--card);border:1px solid var(--border);color:var(--text);padding:14px 18px;border-radius:8px;cursor:pointer;text-align:left;transition:border-color .15s;display:flex;justify-content:space-between;align-items:center;width:100%}
+  .member-btn:hover{border-color:var(--accent)}
+  .member-btn-name{font-family:'Syne',sans-serif;font-weight:600;font-size:14px}
+  .member-btn-role{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--text-dim)}
+  .pin-input{width:100%;background:var(--card2);border:1px solid var(--border);color:var(--text);font-size:28px;letter-spacing:.5em;text-align:center;padding:14px;border-radius:5px;margin-bottom:12px;transition:border-color .2s,box-shadow .2s;font-family:'JetBrains Mono',monospace}
+  .pin-input:focus{outline:none;border-color:var(--accent)!important;box-shadow:0 0 0 3px var(--accent-glow)}
+  .pin-hint{font-family:'JetBrains Mono',monospace;font-size:10px;color:#333;text-align:center;margin-top:12px}
+  .back-btn{background:none;border:none;color:var(--text-dim);cursor:pointer;font-size:13px;display:flex;align-items:center;gap:6px;margin-bottom:20px;padding:0;transition:color .15s}
+  .back-btn:hover{color:var(--text)}
+  /* Modal */
+  .modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.75);display:flex;align-items:center;justify-content:center;z-index:200;padding:20px}
+  .modal{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:28px;max-width:420px;width:100%}
+  .modal-title{font-family:'Syne',sans-serif;font-weight:700;font-size:18px;margin-bottom:8px}
+  .modal-sub{color:var(--text-dim);font-size:14px;margin-bottom:20px;line-height:1.5}
+  .modal-summary{background:var(--card2);border-radius:8px;padding:14px;margin-bottom:20px}
+  .modal-row{display:flex;justify-content:space-between;padding:5px 0;border-bottom:1px solid var(--border);font-size:13px}
+  .modal-row:last-child{border-bottom:none}
+  .modal-label{color:var(--text-dim)}
+  .modal-val{font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--accent)}
+  .modal-actions{display:flex;gap:10px}
+  .modal-actions .btn-ghost{flex:1}
+  .modal-actions .btn-primary{flex:2}
+  /* Settings */
+  .settings-section{background:var(--card);border:1px solid var(--border);border-radius:8px;overflow:hidden;margin-bottom:20px}
+  .settings-header{padding:16px 20px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:10px}
+  .settings-title{font-family:'Syne',sans-serif;font-weight:700;font-size:14px}
+  .settings-hint{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--text-dim)}
+  .settings-body{padding:20px}
+  .pill-list{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:14px;min-height:32px}
+  .pill-item{display:flex;align-items:center;gap:6px;background:var(--card2);border:1px solid var(--border);border-radius:20px;padding:5px 12px;font-size:13px}
+  .pill-role{font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--text-dim)}
+  .pill-remove{background:none;border:none;cursor:pointer;color:var(--text-dim);font-size:14px;padding:0 0 0 4px;line-height:1;transition:color .15s}
+  .pill-remove:hover{color:var(--red)}
+  .add-row{display:flex;gap:8px}
+  .add-row .field-input{flex:1}
+  .pin-row{display:flex;align-items:center;gap:12px;padding:12px 0;border-bottom:1px solid var(--border)}
+  .pin-row:last-child{border-bottom:none}
+  .pin-row-name{flex:1;font-family:'Syne',sans-serif;font-weight:600;font-size:14px}
+  .pin-row-role{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--text-dim);width:60px}
+  .pin-row-input{width:100px;background:var(--card2);border:1px solid var(--border);color:var(--text);font-size:14px;padding:7px 10px;border-radius:5px;font-family:'JetBrains Mono',monospace;letter-spacing:.2em;text-align:center;transition:border-color .2s}
+  .pin-row-input:focus{outline:none;border-color:var(--accent)!important}
+  .capacity-target-row{display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid var(--border)}
+  .capacity-target-row:last-child{border-bottom:none}
+  .capacity-target-label{flex:1;font-size:13px}
+  .capacity-target-sub{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--text-dim)}
+  .capacity-target-input{width:70px;background:var(--card2);border:1px solid var(--border);color:var(--text);font-size:14px;padding:7px 10px;border-radius:5px;font-family:'JetBrains Mono',monospace;text-align:center;transition:border-color .2s}
+  .capacity-target-input:focus{outline:none;border-color:var(--accent)!important}
+  /* Summary report */
+  .summary-report{background:var(--card);border:1px solid var(--border);border-radius:8px;overflow:hidden}
+  .summary-top{padding:28px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:16px}
+  .summary-agency{font-family:'Syne',sans-serif;font-weight:800;font-size:18px;letter-spacing:.06em;color:var(--accent)}
+  .summary-period{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--text-dim);margin-top:4px}
+  .summary-actions{display:flex;gap:8px;flex-wrap:wrap}
+  .summary-section{padding:20px 28px;border-bottom:1px solid var(--border)}
+  .summary-section:last-child{border-bottom:none}
+  .summary-section-title{font-family:'Syne',sans-serif;font-weight:700;font-size:12px;letter-spacing:.1em;text-transform:uppercase;color:var(--text-dim);margin-bottom:14px}
+  .summary-kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:0}
+  .summary-kpi{background:var(--card2);border-radius:6px;padding:14px}
+  .summary-kpi-num{font-family:'JetBrains Mono',monospace;font-size:26px;color:var(--accent);line-height:1;margin-bottom:4px}
+  .summary-kpi-lbl{font-size:11px;color:var(--text-dim)}
+  .summary-table{width:100%;border-collapse:collapse}
+  .summary-table th{padding:8px 12px;text-align:left;font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--text-dim);letter-spacing:.1em;border-bottom:1px solid var(--border)}
+  .summary-table td{padding:10px 12px;border-bottom:1px solid var(--border);font-size:13px}
+  .summary-table tr:last-child td{border-bottom:none}
+  .top-performer{background:var(--accent-dim);border:1px solid rgba(232,197,71,.2);border-radius:6px;padding:14px 18px;display:flex;align-items:center;gap:14px}
+  .top-performer-icon{font-size:24px}
+  .top-performer-name{font-family:'Syne',sans-serif;font-weight:700;font-size:16px}
+  .top-performer-sub{font-size:12px;color:var(--text-dim);margin-top:2px}
+  /* Insight */
+  .insight-card{background:var(--card);border:1px solid var(--border);border-radius:8px;padding:18px 20px;display:flex;align-items:flex-start;gap:14px;margin-bottom:12px}
+  .insight-icon{font-size:18px;flex-shrink:0;margin-top:2px}
+  .insight-title{font-family:'Syne',sans-serif;font-weight:600;font-size:13px;margin-bottom:4px}
+  .insight-text{font-size:13px;color:var(--text-dim);line-height:1.5}
+  /* Misc */
+  .divider{height:1px;background:var(--border);margin:24px 0}
+  .empty{padding:32px;text-align:center;color:var(--text-dim);font-size:14px}
+  .loading-screen{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:60vh;gap:16px}
+  .loading-spinner{width:32px;height:32px;border:2px solid var(--border);border-top-color:var(--accent);border-radius:50%;animation:spin .8s linear infinite}
+  @keyframes spin{to{transform:rotate(360deg)}}
+  .loading-text{font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--text-dim)}
+  .bar-wrap{display:flex;align-items:center;gap:8px}
+  .bar-bg{flex:1;height:4px;background:var(--border);border-radius:2px;overflow:hidden}
+  .bar-fill{height:100%;border-radius:2px;background:var(--accent)}
+  @keyframes fadeIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
+  .fade-in{animation:fadeIn .3s ease forwards}
+  .grid-2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+  .grid-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px}
+  .grid-4{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}
+  @media(max-width:640px){
+    .grid-2,.grid-3,.grid-4,.summary-kpis{grid-template-columns:1fr 1fr}
+    .content,.content-narrow{padding:20px 16px}
+    .header,.tabs{padding:0 16px}
+    .tab{padding:14px 10px;font-size:10px}
+    .header-user-role,.logo-sub{display:none}
+    .clients-grid{grid-template-columns:1fr}
+  }
+  @media print{
+    .header,.tabs,.subtabs,.summary-actions,.btn-primary,.btn-ghost,.btn-ghost-sm{display:none!important}
+    .summary-report{border:none}
+    body{background:#fff;color:#000}
+    :root{--bg:#fff;--card:#fff;--card2:#f5f5f5;--border:#e0e0e0;--text:#000;--text-dim:#666;--text-mid:#444;--accent:#b8960a}
   }
 </style>
 </head>
 <body>
 <div id="app"></div>
 <script>
-// ─── SUPABASE CONFIG ──────────────────────────────────────────────────────────
-const SUPABASE_URL = "https://ejgsjrnponrrrlkacekt.supabase.co";
-const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVqZ3Nqcm5wb25ycnJsa2FjZWt0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ2OTU5NjcsImV4cCI6MjA5MDI3MTk2N30.M7HuxHXGOyT8nUWPKScAG46aGc3INmYVd89x7J8MZFc";
+const SURL="https://ejgsjrnponrrrlkacekt.supabase.co";
+const SKEY="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVqZ3Nqcm5wb25ycnJsa2FjZWt0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ2OTU5NjcsImV4cCI6MjA5MDI3MTk2N30.M7HuxHXGOyT8nUWPKScAG46aGc3INmYVd89x7J8MZFc";
 
-const DEFAULT_CONFIG = {
-  pin: "1234",
-  team: [
-    { id: "e1", name: "Editor 1", role: "editor" },
-    { id: "e2", name: "Editor 2", role: "editor" },
-    { id: "e3", name: "Editor 3", role: "editor" },
-    { id: "e4", name: "Editor 4", role: "editor" },
-    { id: "d1", name: "Designer", role: "designer" },
+const DEFAULT_CONFIG={
+  pin:"1234",
+  team:[
+    {id:"e1",name:"Editor 1",role:"editor",memberPin:"0000"},
+    {id:"e2",name:"Editor 2",role:"editor",memberPin:"0000"},
+    {id:"e3",name:"Editor 3",role:"editor",memberPin:"0000"},
+    {id:"e4",name:"Editor 4",role:"editor",memberPin:"0000"},
+    {id:"d1",name:"Designer",role:"designer",memberPin:"0000"},
   ],
-  clients: ["Client A", "Client B"],
-  internal_projects: ["Own Brand Content", "Agency Showreel"],
+  clients:["Client A","Client B"],
+  internal_projects:["Own Brand Content","Agency Showreel"],
+  capacity_targets:{editor:3,designer:5},
 };
 
-// ─── SUPABASE API ─────────────────────────────────────────────────────────────
-async function sbFetch(path, method = "GET", body = null) {
-  const opts = {
-    method,
-    headers: {
-      "apikey": SUPABASE_KEY,
-      "Authorization": `Bearer ${SUPABASE_KEY}`,
-      "Content-Type": "application/json",
-      "Prefer": method === "POST" ? "return=representation" : "",
-    },
-  };
-  if (body) opts.body = JSON.stringify(body);
-  const res = await fetch(`${SUPABASE_URL}/rest/v1/${path}`, opts);
-  if (!res.ok) { const err = await res.text(); throw new Error(err); }
-  const text = await res.text();
-  return text ? JSON.parse(text) : null;
+// ── Supabase ──────────────────────────────────────────────────────────────────
+async function sb(path,method="GET",body=null){
+  const r=await fetch(`${SURL}/rest/v1/${path}`,{method,headers:{"apikey":SKEY,"Authorization":`Bearer ${SKEY}`,"Content-Type":"application/json","Prefer":method==="POST"?"return=representation":""},body:body?JSON.stringify(body):null});
+  if(!r.ok)throw new Error(await r.text());
+  const t=await r.text();return t?JSON.parse(t):null;
+}
+const getConfig=async()=>{const r=await sb("config?id=eq.1&select=*");return r&&r.length?r[0]:null;};
+const saveConfigDB=async cfg=>sb("config?id=eq.1","PATCH",{pin:cfg.pin,team:cfg.team,clients:cfg.clients,internal_projects:cfg.internal_projects,capacity_targets:cfg.capacity_targets});
+const getEntries=async()=>sb("entries?select=*&order=submitted_at.desc");
+const insertEntry=async e=>sb("entries","POST",{id:e.id,member_id:e.memberId,member_name:e.memberName,role:e.role,date:e.date,tasks:e.tasks,submitted_at:e.submittedAt});
+const patchEntry=async(id,tasks)=>sb(`entries?id=eq.${id}`,"PATCH",{tasks});
+const patchNote=async(id,note)=>sb(`entries?id=eq.${id}`,"PATCH",{manager_note:note});
+const removeEntry=async id=>sb(`entries?id=eq.${id}`,"DELETE");
+
+// ── Utils ─────────────────────────────────────────────────────────────────────
+const uid=()=>Date.now().toString(36)+Math.random().toString(36).slice(2);
+const today=()=>new Date().toISOString().slice(0,10);
+const fmtDate=d=>d?new Date(d+"T00:00:00").toLocaleDateString("en-GB",{day:"numeric",month:"short",year:"numeric"}):"—";
+const fmtDateShort=d=>d?new Date(d+"T00:00:00").toLocaleDateString("en-GB",{day:"numeric",month:"short"}):"—";
+const monthLabel=ym=>{const[y,m]=ym.split("-");return new Date(+y,+m-1,1).toLocaleDateString("en-GB",{month:"long",year:"numeric"});};
+const getMonths=()=>{const o=[],n=new Date();for(let i=0;i<6;i++){const d=new Date(n.getFullYear(),n.getMonth()-i,1);o.push(`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}`);}return o;};
+const weekStart=date=>{const d=new Date(date),day=d.getDay(),diff=d.getDate()-day+(day===0?-6:1);d.setDate(diff);return d.toISOString().slice(0,10);};
+const weekEnd=ws=>{const d=new Date(ws+"T00:00:00");d.setDate(d.getDate()+6);return d.toISOString().slice(0,10);};
+const getWeeks=()=>{const o=[],n=new Date();for(let i=0;i<12;i++){const d=new Date(n);d.setDate(d.getDate()-i*7);o.push(weekStart(d));}return[...new Set(o)];};
+const fmtWeek=ws=>{const s=new Date(ws+"T00:00:00"),e=new Date(ws+"T00:00:00");e.setDate(e.getDate()+6);const f=d=>d.toLocaleDateString("en-GB",{day:"numeric",month:"short"});return`${f(s)} – ${f(e)}`;};
+const getDays=()=>{const o=[],n=new Date();for(let i=0;i<30;i++){const d=new Date(n);d.setDate(d.getDate()-i);o.push(d.toISOString().slice(0,10));}return o;};
+const emptyTask=()=>({id:uid(),project:"",projectType:"client",contentType:"video",quantity:1,driveLink:"",notes:""});
+const norm=e=>({id:e.id,memberId:e.member_id,memberName:e.member_name,role:e.role,date:e.date,tasks:e.tasks||[],submittedAt:e.submitted_at,managerNote:e.manager_note||""});
+// Count working days (Mon-Fri) in a month
+function workingDaysInMonth(ym){
+  const[y,m]=ym.split("-").map(Number);
+  const days=new Date(y,m,0).getDate();
+  let count=0;
+  for(let i=1;i<=days;i++){const d=new Date(y,m-1,i).getDay();if(d!==0&&d!==6)count++;}
+  return count;
 }
 
-async function getConfig() {
-  const rows = await sbFetch("config?id=eq.1&select=*");
-  if (rows && rows.length > 0) return rows[0];
-  return null;
-}
-
-async function upsertConfig(cfg) {
-  await sbFetch("config?id=eq.1", "PATCH", {
-    pin: cfg.pin,
-    team: cfg.team,
-    clients: cfg.clients,
-    internal_projects: cfg.internal_projects,
-  });
-}
-
-async function getEntries() {
-  return await sbFetch("entries?select=*&order=submitted_at.desc");
-}
-
-async function insertEntry(entry) {
-  return await sbFetch("entries", "POST", {
-    id: entry.id,
-    member_id: entry.memberId,
-    member_name: entry.memberName,
-    role: entry.role,
-    date: entry.date,
-    tasks: entry.tasks,
-    submitted_at: entry.submittedAt,
-  });
-}
-
-// ─── UTILS ───────────────────────────────────────────────────────────────────
-function todayStr() { return new Date().toISOString().slice(0, 10); }
-function fmtDate(d) {
-  if (!d) return "—";
-  return new Date(d + "T00:00:00").toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" });
-}
-function monthLabel(ym) { const [y, m] = ym.split("-"); return new Date(+y, +m - 1, 1).toLocaleDateString("en-GB", { month: "long", year: "numeric" }); }
-function getMonthOptions() {
-  const opts = []; const now = new Date();
-  for (let i = 0; i < 6; i++) {
-    const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
-    opts.push(`${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}`);
-  }
-  return opts;
-}
-function getWeekStart(date) {
-  const d = new Date(date);
-  const day = d.getDay(); // 0=Sun
-  const diff = d.getDate() - day + (day === 0 ? -6 : 1); // Monday
-  d.setDate(diff); return d.toISOString().slice(0, 10);
-}
-function getWeekEnd(weekStartStr) {
-  const d = new Date(weekStartStr + "T00:00:00");
-  d.setDate(d.getDate() + 6); return d.toISOString().slice(0, 10);
-}
-function getWeekOptions() {
-  const opts = []; const now = new Date();
-  for (let i = 0; i < 12; i++) {
-    const d = new Date(now); d.setDate(d.getDate() - i * 7);
-    opts.push(getWeekStart(d));
-  }
-  return [...new Set(opts)];
-}
-function fmtWeekLabel(weekStartStr) {
-  const start = new Date(weekStartStr + "T00:00:00");
-  const end = new Date(weekStartStr + "T00:00:00"); end.setDate(end.getDate() + 6);
-  const fmt = d => d.toLocaleDateString("en-GB", { day: "numeric", month: "short" });
-  return `${fmt(start)} – ${fmt(end)}`;
-}
-function getDayOptions() {
-  const opts = []; const now = new Date();
-  for (let i = 0; i < 30; i++) {
-    const d = new Date(now); d.setDate(d.getDate() - i);
-    opts.push(d.toISOString().slice(0, 10));
-  }
-  return opts;
-}
-function uid() { return Date.now().toString(36) + Math.random().toString(36).slice(2); }
-function emptyTask() { return { id: uid(), project: "", projectType: "client", contentType: "video", quantity: 1, driveLink: "", notes: "" }; }
-
-// ─── STATE ────────────────────────────────────────────────────────────────────
-let state = {
-  loaded: false, tab: "log", syncStatus: "ok",
-  entries: [], config: DEFAULT_CONFIG,
-  member: "", date: todayStr(), tasks: [emptyTask()],
-  submitting: false, justSubmitted: false, submitError: "",
-  pinUnlocked: false, pin: "", pinErr: false,
-  dashView: "monthly", // "daily" | "weekly" | "monthly"
-  selectedMonth: getMonthOptions()[0],
-  selectedDate: todayStr(),
-  selectedWeek: getWeekStart(new Date()),
-  newMemberName: "", newMemberRole: "editor",
-  newClient: "", newInternal: "",
-  newPin: "", newPin2: "", pinChangeMsg: "",
-  settingsSaved: false, settingsError: "",
+// ── State ─────────────────────────────────────────────────────────────────────
+let S={
+  loaded:false,tab:"log",sync:"ok",
+  entries:[],config:DEFAULT_CONFIG,
+  member:null,loginStep:"select",loginSel:null,loginPin:"",loginErr:false,
+  managerOk:false,mgrPin:"",mgrPinErr:false,
+  date:today(),tasks:[emptyTask()],
+  submitting:false,submitted:false,submitErr:"",
+  editId:null,confirm:false,
+  // dashboard
+  dashTab:"overview",
+  view:"monthly",month:getMonths()[0],week:weekStart(new Date()),day:today(),
+  // notes
+  noteEditId:null,noteText:"",noteSaving:false,
+  // settings
+  newName:"",newRole:"editor",newClient:"",newInternal:"",
+  pinEdits:{},capEdits:{},
+  newMgrPin:"",newMgrPin2:"",mgrPinMsg:"",
+  saved:false,saveErr:"",
 };
+const set=p=>{Object.assign(S,p);render();};
 
-function setState(patch) { Object.assign(state, patch); render(); }
-
-// ─── INIT ─────────────────────────────────────────────────────────────────────
-async function init() {
-  try {
-    const [cfgRow, entries] = await Promise.all([getConfig(), getEntries()]);
-    const config = cfgRow ? {
-      pin: cfgRow.pin || "1234",
-      team: cfgRow.team || DEFAULT_CONFIG.team,
-      clients: cfgRow.clients || DEFAULT_CONFIG.clients,
-      internal_projects: cfgRow.internal_projects || DEFAULT_CONFIG.internal_projects,
-    } : DEFAULT_CONFIG;
-    // Normalise entries from DB shape
-    const normEntries = (entries || []).map(e => ({
-      id: e.id, memberId: e.member_id, memberName: e.member_name,
-      role: e.role, date: e.date, tasks: e.tasks, submittedAt: e.submitted_at,
-    }));
-    setState({ loaded: true, entries: normEntries, config, syncStatus: "ok" });
-  } catch (err) {
-    console.error(err);
-    setState({ loaded: true, syncStatus: "error" });
-  }
+// ── Init ──────────────────────────────────────────────────────────────────────
+async function init(){
+  try{
+    const[cfg,ents]=await Promise.all([getConfig(),getEntries()]);
+    const config=cfg?{
+      pin:cfg.pin||"1234",
+      team:(cfg.team||DEFAULT_CONFIG.team).map(m=>({memberPin:"0000",...m})),
+      clients:cfg.clients||DEFAULT_CONFIG.clients,
+      internal_projects:cfg.internal_projects||DEFAULT_CONFIG.internal_projects,
+      capacity_targets:cfg.capacity_targets||DEFAULT_CONFIG.capacity_targets,
+    }:DEFAULT_CONFIG;
+    set({loaded:true,entries:(ents||[]).map(norm),config,sync:"ok"});
+  }catch{set({loaded:true,sync:"error"});}
 }
 
-// ─── ACTIONS ──────────────────────────────────────────────────────────────────
-async function submitLog() {
-  if (!state.member || state.tasks.some(t => !t.project.trim())) return;
-  setState({ submitting: true, submitError: "" });
-  const m = state.config.team.find(x => x.id === state.member);
-  const entry = {
-    id: uid(), memberId: state.member, memberName: m?.name, role: m?.role,
-    date: state.date, tasks: state.tasks, submittedAt: new Date().toISOString(),
-  };
-  try {
-    setState({ syncStatus: "syncing" });
-    await insertEntry(entry);
-    const newEntries = [entry, ...state.entries];
-    setState({ submitting: false, justSubmitted: true, entries: newEntries, member: "", tasks: [emptyTask()], date: todayStr(), syncStatus: "ok" });
-    setTimeout(() => setState({ justSubmitted: false }), 4000);
-  } catch (err) {
-    setState({ submitting: false, submitError: "Failed to save. Check your connection and try again.", syncStatus: "error" });
-  }
+// ── Auth ──────────────────────────────────────────────────────────────────────
+function selectMember(m){set({loginStep:"pin",loginSel:m,loginPin:"",loginErr:false});}
+function checkMemberPin(){
+  if(S.loginPin===(S.loginSel.memberPin||"0000"))set({member:{id:S.loginSel.id,name:S.loginSel.name,role:S.loginSel.role},loginStep:"select",loginPin:"",loginErr:false});
+  else set({loginErr:true,loginPin:""});
+}
+function logout(){set({member:null,loginStep:"select",loginPin:"",loginErr:false,tasks:[emptyTask()],date:today(),editId:null,confirm:false,submitted:false});}
+function checkMgrPin(){
+  if(S.mgrPin===S.config.pin)set({managerOk:true,mgrPinErr:false,mgrPin:""});
+  else set({mgrPinErr:true,mgrPin:""});
 }
 
-async function saveConfig(cfg) {
-  setState({ syncStatus: "syncing", settingsError: "" });
-  try {
-    await upsertConfig(cfg);
-    setState({ config: cfg, settingsSaved: true, syncStatus: "ok" });
-    setTimeout(() => setState({ settingsSaved: false }), 2500);
-  } catch (err) {
-    setState({ settingsError: "Failed to save settings. Check your connection.", syncStatus: "error" });
-  }
+// ── Log actions ───────────────────────────────────────────────────────────────
+const updTask=(id,f,v)=>set({tasks:S.tasks.map(t=>t.id===id?{...t,[f]:v}:t)});
+const addTask=()=>set({tasks:[...S.tasks,emptyTask()]});
+const rmTask=id=>set({tasks:S.tasks.filter(t=>t.id!==id)});
+function startEdit(entry){set({editId:entry.id,date:entry.date,tasks:entry.tasks.map(t=>({...t,id:t.id||uid()})),confirm:false,submitted:false,submitErr:""});window.scrollTo({top:0,behavior:"smooth"});}
+function cancelEdit(){set({editId:null,tasks:[emptyTask()],date:today()});}
+async function doDelete(id){if(!confirm("Delete this entry permanently?"))return;set({sync:"syncing"});try{await removeEntry(id);set({entries:S.entries.filter(e=>e.id!==id),sync:"ok"});}catch{set({sync:"error"});}}
+const requestSubmit=()=>{if(!S.member||S.tasks.some(t=>!t.project.trim()))return;set({confirm:true});};
+const cancelConfirm=()=>set({confirm:false});
+async function confirmSubmit(){
+  set({confirm:false,submitting:true,submitErr:""});
+  const m=S.member;
+  try{
+    set({sync:"syncing"});
+    if(S.editId){
+      await patchEntry(S.editId,S.tasks);
+      set({submitting:false,submitted:true,entries:S.entries.map(e=>e.id===S.editId?{...e,tasks:S.tasks}:e),tasks:[emptyTask()],date:today(),editId:null,sync:"ok"});
+    }else{
+      const entry={id:uid(),memberId:m.id,memberName:m.name,role:m.role,date:S.date,tasks:S.tasks,submittedAt:new Date().toISOString(),managerNote:""};
+      await insertEntry(entry);
+      set({submitting:false,submitted:true,entries:[entry,...S.entries],tasks:[emptyTask()],date:today(),sync:"ok"});
+    }
+    setTimeout(()=>set({submitted:false}),4000);
+  }catch{set({submitting:false,submitErr:"Failed to save. Check your connection.",sync:"error"});}
 }
 
-function checkPin() {
-  if (state.pin === state.config.pin) setState({ pinUnlocked: true, pinErr: false, pin: "" });
-  else setState({ pinErr: true, pin: "" });
+// ── Note actions ──────────────────────────────────────────────────────────────
+function startNote(entry){set({noteEditId:entry.id,noteText:entry.managerNote||""});}
+function cancelNote(){set({noteEditId:null,noteText:""});}
+async function saveNote(){
+  set({noteSaving:true,sync:"syncing"});
+  try{
+    await patchNote(S.noteEditId,S.noteText);
+    set({entries:S.entries.map(e=>e.id===S.noteEditId?{...e,managerNote:S.noteText}:e),noteEditId:null,noteText:"",noteSaving:false,sync:"ok"});
+  }catch{set({noteSaving:false,sync:"error"});}
 }
 
-function updateTask(id, field, value) { setState({ tasks: state.tasks.map(t => t.id === id ? { ...t, [field]: value } : t) }); }
-function addTask() { setState({ tasks: [...state.tasks, emptyTask()] }); }
-function removeTask(id) { setState({ tasks: state.tasks.filter(t => t.id !== id) }); }
-
-function addMember() {
-  if (!state.newMemberName.trim()) return;
-  const cfg = { ...state.config, team: [...state.config.team, { id: uid(), name: state.newMemberName.trim(), role: state.newMemberRole }] };
-  setState({ newMemberName: "" });
-  saveConfig(cfg);
+// ── Config actions ────────────────────────────────────────────────────────────
+async function saveConf(cfg){
+  set({sync:"syncing",saveErr:""});
+  try{await saveConfigDB(cfg);set({config:cfg,saved:true,sync:"ok"});setTimeout(()=>set({saved:false}),2500);}
+  catch{set({saveErr:"Failed to save settings.",sync:"error"});}
 }
-function removeMember(id) { saveConfig({ ...state.config, team: state.config.team.filter(m => m.id !== id) }); }
-function addClient() {
-  const val = state.newClient.trim();
-  if (!val || state.config.clients.includes(val)) { setState({ newClient: "" }); return; }
-  saveConfig({ ...state.config, clients: [...state.config.clients, val] });
-  setState({ newClient: "" });
+const addMember=()=>{if(!S.newName.trim())return;saveConf({...S.config,team:[...S.config.team,{id:uid(),name:S.newName.trim(),role:S.newRole,memberPin:"0000"}]});set({newName:""});};
+const rmMember=id=>saveConf({...S.config,team:S.config.team.filter(m=>m.id!==id)});
+const addClient=()=>{const v=S.newClient.trim();if(!v||S.config.clients.includes(v)){set({newClient:""});return;}saveConf({...S.config,clients:[...S.config.clients,v]});set({newClient:""});};
+const rmClient=c=>saveConf({...S.config,clients:S.config.clients.filter(x=>x!==c)});
+const addInternal=()=>{const v=S.newInternal.trim();if(!v||S.config.internal_projects.includes(v)){set({newInternal:""});return;}saveConf({...S.config,internal_projects:[...S.config.internal_projects,v]});set({newInternal:""});};
+const rmInternal=p=>saveConf({...S.config,internal_projects:S.config.internal_projects.filter(x=>x!==p)});
+function savePins(){const t=S.config.team.map(m=>S.pinEdits[m.id]!==undefined?{...m,memberPin:S.pinEdits[m.id]}:m);saveConf({...S.config,team:t});set({pinEdits:{}});}
+function saveCapacity(){
+  const ct={...S.config.capacity_targets};
+  Object.entries(S.capEdits).forEach(([role,val])=>{ct[role]=parseInt(val)||1;});
+  saveConf({...S.config,capacity_targets:ct});set({capEdits:{}});
 }
-function removeClient(c) { saveConfig({ ...state.config, clients: state.config.clients.filter(x => x !== c) }); }
-function addInternal() {
-  const val = state.newInternal.trim();
-  if (!val || state.config.internal_projects.includes(val)) { setState({ newInternal: "" }); return; }
-  saveConfig({ ...state.config, internal_projects: [...state.config.internal_projects, val] });
-  setState({ newInternal: "" });
-}
-function removeInternal(p) { saveConfig({ ...state.config, internal_projects: state.config.internal_projects.filter(x => x !== p) }); }
-function changePin() {
-  if (!state.newPin || state.newPin.length < 4) { setState({ pinChangeMsg: "err:PIN must be at least 4 characters." }); return; }
-  if (state.newPin !== state.newPin2) { setState({ pinChangeMsg: "err:PINs don't match." }); return; }
-  const cfg = { ...state.config, pin: state.newPin };
-  saveConfig(cfg);
-  setState({ newPin: "", newPin2: "", pinChangeMsg: "ok:PIN updated successfully." });
-  setTimeout(() => setState({ pinChangeMsg: "" }), 3000);
+function changeMgrPin(){
+  if(!S.newMgrPin||S.newMgrPin.length<4){set({mgrPinMsg:"err:At least 4 characters."});return;}
+  if(S.newMgrPin!==S.newMgrPin2){set({mgrPinMsg:"err:PINs don't match."});return;}
+  saveConf({...S.config,pin:S.newMgrPin});set({newMgrPin:"",newMgrPin2:"",mgrPinMsg:"ok:PIN updated."});
+  setTimeout(()=>set({mgrPinMsg:""}),3000);
 }
 
-// ─── DASHBOARD STATS ──────────────────────────────────────────────────────────
-function computeStats() {
-  let filteredEntries, periodLabel, submissionCount;
-
-  if (state.dashView === "daily") {
-    filteredEntries = state.entries.filter(e => e.date === state.selectedDate);
-    periodLabel = fmtDate(state.selectedDate);
-  } else if (state.dashView === "weekly") {
-    const wEnd = getWeekEnd(state.selectedWeek);
-    filteredEntries = state.entries.filter(e => e.date >= state.selectedWeek && e.date <= wEnd);
-    periodLabel = fmtWeekLabel(state.selectedWeek);
-  } else {
-    filteredEntries = state.entries.filter(e => e.date && e.date.startsWith(state.selectedMonth));
-    periodLabel = monthLabel(state.selectedMonth);
-  }
-
-  submissionCount = filteredEntries.length;
-
-  const memberStats = state.config.team.map(m => {
-    const me = filteredEntries.filter(e => e.memberId === m.id);
-    const allTasks = me.flatMap(e => e.tasks || []);
-    const videos = allTasks.filter(t => t.contentType === "video").reduce((a, t) => a + Number(t.quantity || 0), 0);
-    const graphics = allTasks.filter(t => t.contentType === "graphic").reduce((a, t) => a + Number(t.quantity || 0), 0);
-    const clientWork = allTasks.filter(t => t.projectType === "client").reduce((a, t) => a + Number(t.quantity || 0), 0);
-    const internalWork = allTasks.filter(t => t.projectType === "internal").reduce((a, t) => a + Number(t.quantity || 0), 0);
-    const daysLogged = new Set(me.map(e => e.date)).size;
-    return { ...m, videos, graphics, total: videos + graphics, clientWork, internalWork, daysLogged };
+// ── Stats ─────────────────────────────────────────────────────────────────────
+function getFiltered(){
+  if(S.view==="daily")return{filtered:S.entries.filter(e=>e.date===S.day),label:fmtDate(S.day)};
+  if(S.view==="weekly"){const we=weekEnd(S.week);return{filtered:S.entries.filter(e=>e.date>=S.week&&e.date<=we),label:fmtWeek(S.week)};}
+  return{filtered:S.entries.filter(e=>e.date&&e.date.startsWith(S.month)),label:monthLabel(S.month)};
+}
+function memberStats(filtered){
+  return S.config.team.map(m=>{
+    const me=filtered.filter(e=>e.memberId===m.id),all=me.flatMap(e=>e.tasks||[]);
+    const videos=all.filter(t=>t.contentType==="video").reduce((a,t)=>a+Number(t.quantity||0),0);
+    const graphics=all.filter(t=>t.contentType==="graphic").reduce((a,t)=>a+Number(t.quantity||0),0);
+    const cw=all.filter(t=>t.projectType==="client").reduce((a,t)=>a+Number(t.quantity||0),0);
+    const iw=all.filter(t=>t.projectType==="internal").reduce((a,t)=>a+Number(t.quantity||0),0);
+    const days=new Set(me.map(e=>e.date)).size;
+    return{...m,videos,graphics,total:videos+graphics,clientWork:cw,internalWork:iw,daysLogged:days};
   });
-  const totalVideos = memberStats.reduce((a, m) => a + m.videos, 0);
-  const totalGraphics = memberStats.reduce((a, m) => a + m.graphics, 0);
-  const totalOutput = totalVideos + totalGraphics;
-  const clientTotal = memberStats.reduce((a, m) => a + m.clientWork, 0);
-  const clientPct = totalOutput > 0 ? Math.round((clientTotal / totalOutput) * 100) : 0;
-  const maxTotal = Math.max(...memberStats.map(m => m.total), 1);
-  const recentEntries = [...filteredEntries].sort((a, b) => (b.submittedAt || "").localeCompare(a.submittedAt || "")).slice(0, 15);
-  return { memberStats, totalVideos, totalGraphics, totalOutput, clientPct, maxTotal, recentEntries, submissionCount, periodLabel };
+}
+function clientStats(filtered){
+  const map={};
+  filtered.forEach(entry=>{
+    (entry.tasks||[]).filter(t=>t.projectType==="client"&&t.project).forEach(t=>{
+      if(!map[t.project])map[t.project]={name:t.project,videos:0,graphics:0,total:0,editors:new Set(),days:new Set()};
+      const c=map[t.project];
+      if(t.contentType==="video")c.videos+=Number(t.quantity||0);
+      else c.graphics+=Number(t.quantity||0);
+      c.total+=Number(t.quantity||0);
+      c.editors.add(entry.memberName);
+      c.days.add(entry.date);
+    });
+  });
+  return Object.values(map).map(c=>({...c,editors:[...c.editors],days:c.days.size})).sort((a,b)=>b.total-a.total);
+}
+function capacityStats(filtered,label){
+  // Determine number of working days in period
+  let wDays=1;
+  if(S.view==="monthly")wDays=workingDaysInMonth(S.month);
+  else if(S.view==="weekly")wDays=5;
+  else wDays=1;
+  const ct=S.config.capacity_targets||{editor:3,designer:5};
+  const ms=memberStats(filtered);
+  const rows=ms.map(m=>{
+    const target=(ct[m.role]||3)*wDays;
+    const pct=target>0?Math.min(Math.round((m.total/target)*100),999):0;
+    return{...m,target,pct};
+  });
+  const totalActual=rows.reduce((a,r)=>a+r.total,0);
+  const totalCap=rows.reduce((a,r)=>a+r.target,0);
+  const overallPct=totalCap>0?Math.min(Math.round((totalActual/totalCap)*100),999):0;
+  return{rows,overallPct,totalActual,totalCap};
 }
 
-// ─── DOM HELPERS ──────────────────────────────────────────────────────────────
-function el(tag, attrs, ...children) {
-  const e = document.createElement(tag);
-  if (attrs) Object.entries(attrs).forEach(([k, v]) => {
-    if (k === "class") e.className = v;
-    else if (k === "style" && typeof v === "object") Object.assign(e.style, v);
-    else if (k.startsWith("on")) e.addEventListener(k.slice(2).toLowerCase(), v);
-    else e.setAttribute(k, v);
+// ── DOM helpers ───────────────────────────────────────────────────────────────
+function el(tag,a,...ch){
+  const e=document.createElement(tag);
+  if(a)Object.entries(a).forEach(([k,v])=>{
+    if(k==="class")e.className=v;
+    else if(k==="style"&&typeof v==="object")Object.assign(e.style,v);
+    else if(k.startsWith("on"))e.addEventListener(k.slice(2).toLowerCase(),v);
+    else e.setAttribute(k,v);
   });
-  children.flat(Infinity).forEach(c => {
-    if (c == null || c === false) return;
-    e.appendChild(c instanceof Node ? c : document.createTextNode(String(c)));
-  });
+  ch.flat(Infinity).forEach(c=>{if(c==null||c===false)return;e.appendChild(c instanceof Node?c:document.createTextNode(String(c)));});
   return e;
 }
-function div(cls, ...ch) { return el("div", { class: cls }, ...ch); }
-function span(cls, t) { return el("span", { class: cls }, t); }
-function lbl(text) { return el("label", { class: "field-label" }, text); }
-function field(labelText, input) { const w = div(""); w.appendChild(lbl(labelText)); w.appendChild(input); return w; }
-
-// ─── RENDER: HEADER ───────────────────────────────────────────────────────────
-function renderHeader() {
-  const header = el("div", { class: "header" });
-  const hi = el("div", { class: "header-inner" });
-  hi.appendChild(div("logo", div("logo-bar"), div("logo-text", span("logo-name", "NEED CONSULTANCY"), span("logo-sub", "OUTPUT TRACKER"))));
-  const right = el("div", { style: { display: "flex", alignItems: "center", gap: "10px" } });
-  right.appendChild(el("span", { class: "header-date" }, new Date().toLocaleDateString("en-GB", { weekday: "long", day: "numeric", month: "long", year: "numeric" })));
-  const dot = el("span", { class: `sync-dot ${state.syncStatus === "syncing" ? "syncing" : state.syncStatus === "error" ? "error" : ""}`, title: state.syncStatus === "ok" ? "Connected to cloud" : state.syncStatus === "syncing" ? "Syncing…" : "Connection error" });
-  right.appendChild(dot);
-  hi.appendChild(right); header.appendChild(hi);
-  return header;
+const d=(cls,...ch)=>el("div",{class:cls},...ch);
+const sp=(cls,t)=>el("span",{class:cls},t);
+const lbl=t=>el("label",{class:"field-label"},t);
+function fld(l,inp){const w=d("");w.appendChild(lbl(l));w.appendChild(inp);return w;}
+function taskPills(tasks){
+  const wrap=d("log-tasks");
+  (tasks||[]).forEach(t=>{
+    const pill=d("log-task-pill");
+    pill.appendChild(el("span",{class:`badge badge-${t.projectType}`},t.projectType));
+    pill.appendChild(el("span",{class:`badge badge-${t.contentType}`},t.contentType));
+    pill.appendChild(el("span",{class:"log-task-name"},t.project||"—"));
+    pill.appendChild(el("span",{class:"log-task-qty"},"×"+(t.quantity||1)));
+    if(t.driveLink)pill.appendChild(el("a",{class:"drive-link",href:t.driveLink,target:"_blank",rel:"noopener"},"📁 Drive"));
+    wrap.appendChild(pill);
+  });
+  return wrap;
+}
+function periodControls(){
+  const ctrl=el("div",{style:{display:"flex",gap:"10px",alignItems:"center",flexWrap:"wrap"}});
+  const vt=d("toggle-group");
+  [["daily","Day"],["weekly","Week"],["monthly","Month"]].forEach(([v,l])=>vt.appendChild(el("button",{class:`toggle-btn${S.view===v?" active":""}`,style:{padding:"8px 14px"},onClick:()=>set({view:v})},l)));
+  ctrl.appendChild(vt);
+  if(S.view==="monthly"){
+    const ms=el("select",{class:"field-input",style:{width:"auto",cursor:"pointer"}});
+    getMonths().forEach(ym=>{const o=el("option",{value:ym},monthLabel(ym));if(ym===S.month)o.selected=true;ms.appendChild(o);});
+    ms.value=S.month;ms.addEventListener("change",e=>set({month:e.target.value}));ctrl.appendChild(ms);
+  }else if(S.view==="weekly"){
+    const ws=el("select",{class:"field-input",style:{width:"auto",cursor:"pointer"}});
+    getWeeks().forEach(w=>{const o=el("option",{value:w},fmtWeek(w));if(w===S.week)o.selected=true;ws.appendChild(o);});
+    ws.value=S.week;ws.addEventListener("change",e=>set({week:e.target.value}));ctrl.appendChild(ws);
+  }else{
+    const ds=el("select",{class:"field-input",style:{width:"auto",cursor:"pointer"}});
+    getDays().forEach(dv=>{const o=el("option",{value:dv},fmtDate(dv)+(dv===today()?" (Today)":""));if(dv===S.day)o.selected=true;ds.appendChild(o);});
+    ds.value=S.day;ds.addEventListener("change",e=>set({day:e.target.value}));ctrl.appendChild(ds);
+  }
+  return ctrl;
 }
 
-// ─── RENDER: LOG ──────────────────────────────────────────────────────────────
-function renderLog() {
-  const canSubmit = state.member && !state.tasks.some(t => !t.project.trim());
-  const wrap = div("fade-in");
-  const th = div(""); th.style.marginBottom = "24px";
-  th.appendChild(el("h2", { class: "section-title" }, "Daily Work Log"));
-  th.appendChild(el("p", { class: "section-sub", style: { marginTop: "4px" } }, "Fill this in at the end of each working day."));
-  wrap.appendChild(th);
-  if (state.justSubmitted) wrap.appendChild(div("success-msg", "✓ Work logged and saved to the cloud! See you tomorrow."));
-  if (state.submitError) wrap.appendChild(div("error-msg", "⚠ " + state.submitError));
+// ── Header ────────────────────────────────────────────────────────────────────
+function renderHeader(){
+  const h=el("div",{class:"header"}),hi=el("div",{class:"header-inner"});
+  hi.appendChild(d("logo",d("logo-bar"),d("logo-text",sp("logo-name","NEED CONSULTANCY"),sp("logo-sub","OUTPUT TRACKER"))));
+  const right=d("header-right");
+  if(S.member){
+    const ub=d("header-user");
+    ub.appendChild(el("div",{},el("div",{class:"header-user-name"},S.member.name),el("div",{class:"header-user-role"},S.member.role)));
+    ub.appendChild(el("button",{class:"btn-signout",onClick:logout},"Sign out"));
+    right.appendChild(ub);
+  }
+  right.appendChild(el("span",{class:`sync-dot${S.sync==="syncing"?" syncing":S.sync==="error"?" error":""}`,title:S.sync==="ok"?"Connected":S.sync==="syncing"?"Syncing…":"Error"}));
+  hi.appendChild(right);h.appendChild(hi);return h;
+}
 
-  const topGrid = div("grid-2"); topGrid.style.marginBottom = "20px";
-  const memberSel = el("select", { class: "field-input", style: { cursor: "pointer" } });
-  memberSel.appendChild(el("option", { value: "" }, "Select your name…"));
-  state.config.team.forEach(m => { const o = el("option", { value: m.id }, m.name); if (m.id === state.member) o.selected = true; memberSel.appendChild(o); });
-  memberSel.value = state.member;
-  memberSel.addEventListener("change", e => setState({ member: e.target.value }));
-  topGrid.appendChild(field("Your Name", memberSel));
-  const dateI = el("input", { class: "field-input", type: "date", value: state.date });
-  dateI.addEventListener("change", e => setState({ date: e.target.value }));
-  topGrid.appendChild(field("Date", dateI));
-  wrap.appendChild(topGrid);
+// ── Login ─────────────────────────────────────────────────────────────────────
+function renderLogin(){
+  const wrap=d("auth-screen fade-in");
+  if(S.loginStep==="select"){
+    wrap.appendChild(el("div",{style:{fontSize:"28px",marginBottom:"14px"}},"👋"));
+    wrap.appendChild(el("p",{class:"auth-title"},"Who are you?"));
+    wrap.appendChild(el("p",{class:"auth-sub"},"Select your name to log in."));
+    const grid=d("member-grid");
+    S.config.team.forEach(m=>{
+      const btn=el("button",{class:"member-btn",onClick:()=>selectMember(m)});
+      btn.appendChild(el("div",{},el("div",{class:"member-btn-name"},m.name),el("div",{class:"member-btn-role"},m.role)));
+      btn.appendChild(el("span",{style:{color:"var(--text-dim)",fontSize:"20px"}},"→"));
+      grid.appendChild(btn);
+    });
+    wrap.appendChild(grid);
+  }else{
+    const m=S.loginSel;
+    wrap.appendChild(el("button",{class:"back-btn",onClick:()=>set({loginStep:"select",loginPin:"",loginErr:false})},"← Back"));
+    wrap.appendChild(el("p",{class:"auth-title"},`Hi, ${m.name}`));
+    wrap.appendChild(el("p",{class:"auth-sub"},"Enter your PIN to continue."));
+    const pi=el("input",{class:"pin-input",type:"password",maxlength:"10",placeholder:"••••",autocomplete:"off"});
+    pi.value=S.loginPin;
+    pi.addEventListener("input",e=>{S.loginPin=e.target.value;});
+    pi.addEventListener("keydown",e=>{if(e.key==="Enter")checkMemberPin();});
+    wrap.appendChild(pi);
+    if(S.loginErr)wrap.appendChild(el("p",{style:{color:"var(--red)",fontSize:"13px",textAlign:"center",marginBottom:"12px"}},"Incorrect PIN. Try again."));
+    else wrap.appendChild(el("div",{style:{height:"12px"}}));
+    wrap.appendChild(el("button",{class:"btn-primary",onClick:checkMemberPin},"Log In"));
+    wrap.appendChild(el("p",{class:"pin-hint"},"Default PIN: 0000 · Change in Settings"));
+  }
+  return el("div",{class:"content-narrow"},wrap);
+}
+
+// ── Log tab ───────────────────────────────────────────────────────────────────
+function renderLog(){
+  if(!S.member)return renderLogin();
+  const isEdit=!!S.editId,canSubmit=!S.tasks.some(t=>!t.project.trim());
+  const wrap=d("fade-in");
+  const th=d("");th.style.marginBottom="20px";
+  th.appendChild(el("h2",{class:"section-title"},isEdit?"Edit Submission":"Daily Work Log"));
+  th.appendChild(el("p",{class:"section-sub",style:{marginTop:"4px"}},isEdit?"Correct your entry and resubmit.":"Fill this in at the end of each working day."));
+  wrap.appendChild(th);
+  if(isEdit){const b=d("editing-banner");b.appendChild(el("span",{},"✏️  Editing — changes will overwrite the original."));b.appendChild(el("button",{class:"btn-ghost-sm",onClick:cancelEdit},"Cancel"));wrap.appendChild(b);}
+  if(S.submitted)wrap.appendChild(d("success-msg",isEdit?"✓ Entry updated!":"✓ Work logged and saved to the cloud!"));
+  if(S.submitErr)wrap.appendChild(d("error-msg","⚠ "+S.submitErr));
+
+  const tg=d("grid-2");tg.style.marginBottom="20px";
+  const md=el("div",{class:"field-input",style:{background:"var(--bg)",cursor:"not-allowed",display:"flex",alignItems:"center",gap:"8px"}});
+  md.appendChild(el("span",{style:{fontFamily:"Syne,sans-serif",fontWeight:"600"}},S.member.name));
+  md.appendChild(el("span",{style:{fontFamily:"JetBrains Mono,monospace",fontSize:"10px",color:"var(--text-dim)"}},S.member.role));
+  tg.appendChild(fld("Submitting as",md));
+  const di=el("input",{class:"field-input",type:"date",value:S.date});
+  di.addEventListener("change",e=>set({date:e.target.value}));
+  tg.appendChild(fld("Date",di));
+  wrap.appendChild(tg);
   wrap.appendChild(lbl("Tasks Completed"));
 
-  state.tasks.forEach((task, idx) => {
-    const card = div("task-card");
-    const hdr = div("task-header");
-    hdr.appendChild(span("task-num", `TASK ${idx + 1}`));
-    if (state.tasks.length > 1) hdr.appendChild(el("button", { class: "btn-remove", onClick: () => removeTask(task.id) }, "✕ Remove"));
+  S.tasks.forEach((task,idx)=>{
+    const card=d("task-card"),hdr=d("task-header");
+    hdr.appendChild(sp("task-num",`TASK ${idx+1}`));
+    if(S.tasks.length>1)hdr.appendChild(el("button",{class:"btn-remove",onClick:()=>rmTask(task.id)},"✕ Remove"));
     card.appendChild(hdr);
-
-    // Toggles
-    const r2 = div("grid-2"); r2.style.marginBottom = "12px";
-    const ptT = div("toggle-group");
-    ["client", "internal"].forEach(v => {
-      const b = el("button", { class: `toggle-btn ${task.projectType === v ? "active" : ""}`, onClick: () => { updateTask(task.id, "projectType", v); updateTask(task.id, "project", ""); } }, v === "client" ? "Client" : "Internal");
-      ptT.appendChild(b);
-    });
-    r2.appendChild(field("Work Type", ptT));
-    const ctT = div("toggle-group");
-    ["video", "graphic"].forEach(v => {
-      const b = el("button", { class: `toggle-btn ${task.contentType === v ? "active" : ""}`, onClick: () => updateTask(task.id, "contentType", v) }, v === "video" ? "🎬 Video" : "🖼 Graphic");
-      ctT.appendChild(b);
-    });
-    r2.appendChild(field("Content Type", ctT));
+    const r2=d("grid-2");r2.style.marginBottom="12px";
+    const pt=d("toggle-group");
+    ["client","internal"].forEach(v=>pt.appendChild(el("button",{class:`toggle-btn${task.projectType===v?" active":""}`,onClick:()=>{updTask(task.id,"projectType",v);updTask(task.id,"project","");}},v==="client"?"Client":"Internal")));
+    r2.appendChild(fld("Work Type",pt));
+    const ct=d("toggle-group");
+    ["video","graphic"].forEach(v=>ct.appendChild(el("button",{class:`toggle-btn${task.contentType===v?" active":""}`,onClick:()=>updTask(task.id,"contentType",v)},v==="video"?"🎬 Video":"🖼 Graphic")));
+    r2.appendChild(fld("Content Type",ct));
     card.appendChild(r2);
-
-    // Project dropdown
-    const projectRow = el("div", {}); projectRow.style.marginBottom = "12px";
-    projectRow.appendChild(lbl("Client / Project"));
-    const allProjects = task.projectType === "client" ? state.config.clients : state.config.internal_projects;
-    const projectSel = el("select", { class: "field-input", style: { cursor: "pointer" } });
-    projectSel.appendChild(el("option", { value: "" }, "Select…"));
-    allProjects.forEach(p => { const o = el("option", { value: p }, p); if (p === task.project) o.selected = true; projectSel.appendChild(o); });
-    projectSel.appendChild(el("option", { value: "__other__" }, "Other (type below)"));
-    projectSel.value = allProjects.includes(task.project) ? task.project : (task.project ? "__other__" : "");
-    projectSel.addEventListener("change", e => updateTask(task.id, "project", e.target.value === "__other__" ? "" : e.target.value));
-    projectRow.appendChild(projectSel);
-    if (!allProjects.includes(task.project) && task.project !== "") {
-      const fi = el("input", { class: "field-input", type: "text", placeholder: "Type project name…", value: task.project, style: { marginTop: "6px" } });
-      fi.addEventListener("input", e => updateTask(task.id, "project", e.target.value));
-      projectRow.appendChild(fi);
+    const pr=el("div",{});pr.style.marginBottom="12px";pr.appendChild(lbl("Client / Project"));
+    const ap=task.projectType==="client"?S.config.clients:S.config.internal_projects;
+    const ps=el("select",{class:"field-input",style:{cursor:"pointer"}});
+    ps.appendChild(el("option",{value:""},"Select…"));
+    ap.forEach(p=>{const o=el("option",{value:p},p);if(p===task.project)o.selected=true;ps.appendChild(o);});
+    ps.appendChild(el("option",{value:"__other__"},"Other (type below)"));
+    ps.value=ap.includes(task.project)?task.project:(task.project?"__other__":"");
+    ps.addEventListener("change",e=>updTask(task.id,"project",e.target.value==="__other__"?"":e.target.value));
+    pr.appendChild(ps);
+    if(!ap.includes(task.project)&&task.project!==""){
+      const fi=el("input",{class:"field-input",type:"text",placeholder:"Type project name…",value:task.project,style:{marginTop:"6px"}});
+      fi.addEventListener("input",e=>updTask(task.id,"project",e.target.value));
+      pr.appendChild(fi);
     }
-    card.appendChild(projectRow);
-
-    // Drive link + Qty
-    const r1b = el("div", {}); r1b.style.display = "grid"; r1b.style.gridTemplateColumns = "1fr 80px"; r1b.style.gap = "12px"; r1b.style.marginBottom = "12px";
-    const driveLinkI = el("input", { class: "field-input", type: "url", placeholder: "https://drive.google.com/…", value: task.driveLink || "" });
-    driveLinkI.addEventListener("input", e => updateTask(task.id, "driveLink", e.target.value));
-    r1b.appendChild(field("Google Drive Link", driveLinkI));
-    const qtyI = el("input", { class: "field-input", type: "number", min: "1", max: "99", value: task.quantity, style: { textAlign: "center" } });
-    qtyI.addEventListener("change", e => updateTask(task.id, "quantity", Math.max(1, parseInt(e.target.value) || 1)));
-    r1b.appendChild(field("Qty", qtyI));
-    card.appendChild(r1b);
-
-    const notesI = el("input", { class: "field-input", type: "text", placeholder: "e.g. Rough cut done, pending revisions…", value: task.notes || "" });
-    notesI.addEventListener("input", e => updateTask(task.id, "notes", e.target.value));
-    card.appendChild(field("Notes (optional)", notesI));
+    card.appendChild(pr);
+    const r1=el("div",{});r1.style.cssText="display:grid;grid-template-columns:1fr 80px;gap:12px;margin-bottom:12px";
+    const dl=el("input",{class:"field-input",type:"url",placeholder:"https://drive.google.com/…",value:task.driveLink||""});
+    dl.addEventListener("input",e=>updTask(task.id,"driveLink",e.target.value));
+    r1.appendChild(fld("Google Drive Link",dl));
+    const qi=el("input",{class:"field-input",type:"number",min:"1",max:"99",value:task.quantity,style:{textAlign:"center"}});
+    qi.addEventListener("change",e=>updTask(task.id,"quantity",Math.max(1,parseInt(e.target.value)||1)));
+    r1.appendChild(fld("Qty",qi));
+    card.appendChild(r1);
+    const ni=el("input",{class:"field-input",type:"text",placeholder:"e.g. Rough cut done, pending revisions…",value:task.notes||""});
+    ni.addEventListener("input",e=>updTask(task.id,"notes",e.target.value));
+    card.appendChild(fld("Notes (optional)",ni));
     wrap.appendChild(card);
   });
 
-  const actions = el("div", { style: { marginTop: "4px", display: "flex", flexDirection: "column", gap: "12px" } });
-  actions.appendChild(el("button", { class: "btn-ghost", onClick: addTask }, "+ Add another task"));
-  const subBtn = el("button", { class: "btn-primary", onClick: submitLog });
-  subBtn.textContent = state.submitting ? "Saving to cloud…" : "Submit Today's Work";
-  subBtn.disabled = !canSubmit || state.submitting;
-  actions.appendChild(subBtn);
-  wrap.appendChild(actions);
-  return el("div", { class: "content", style: { maxWidth: "680px", margin: "0 auto", width: "100%" } }, wrap);
+  const acts=el("div",{style:{marginTop:"4px",display:"flex",flexDirection:"column",gap:"12px"}});
+  acts.appendChild(el("button",{class:"btn-ghost",onClick:addTask},"+ Add another task"));
+  const sb2=el("button",{class:"btn-primary",onClick:requestSubmit});
+  sb2.textContent=S.submitting?"Saving…":(isEdit?"Review & Update":"Review & Submit");
+  sb2.disabled=!canSubmit||S.submitting;
+  acts.appendChild(sb2);
+  wrap.appendChild(acts);
+
+  // My recent submissions (with manager notes visible)
+  const mine=S.entries.filter(e=>e.memberId===S.member.id).slice(0,10);
+  if(mine.length>0){
+    wrap.appendChild(el("div",{class:"divider"}));
+    wrap.appendChild(el("p",{style:{fontFamily:"Syne,sans-serif",fontWeight:"700",fontSize:"14px",marginBottom:"14px"}},"My Recent Submissions"));
+    const rw=el("div",{style:{background:"var(--card)",border:"1px solid var(--border)",borderRadius:"8px",overflow:"hidden"}});
+    mine.forEach(entry=>{
+      const item=d("log-item"),meta=d("log-meta");
+      meta.appendChild(el("span",{class:"log-date",style:{fontSize:"12px",color:"var(--text-mid)"}},fmtDate(entry.date)));
+      const ea=d("log-actions");
+      ea.appendChild(el("button",{class:"btn-edit",onClick:()=>startEdit(entry)},"✏ Edit"));
+      ea.appendChild(el("button",{class:"btn-del",onClick:()=>doDelete(entry.id)},"✕ Delete"));
+      meta.appendChild(ea);item.appendChild(meta);
+      item.appendChild(taskPills(entry.tasks));
+      if(entry.managerNote){
+        const n=d("manager-note-display");
+        n.appendChild(el("span",{class:"manager-note-icon"},"📌"));
+        n.appendChild(el("span",{class:"manager-note-text"},entry.managerNote));
+        item.appendChild(n);
+      }
+      rw.appendChild(item);
+    });
+    wrap.appendChild(rw);
+  }
+  return el("div",{class:"content-narrow"},wrap);
 }
 
-// ─── RENDER: DASHBOARD ────────────────────────────────────────────────────────
-function renderDashboard() {
-  const { memberStats, totalVideos, totalGraphics, totalOutput, clientPct, maxTotal, recentEntries, submissionCount, periodLabel } = computeStats();
-  const wrap = div("fade-in");
-
-  // Title + controls
-  const topRow = el("div", { style: { display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: "20px", flexWrap: "wrap", gap: "14px" } });
-  const left = div("");
-  left.appendChild(el("h2", { class: "section-title" }, "Output Dashboard"));
-  left.appendChild(el("p", { class: "section-sub", style: { marginTop: "4px" } }, `${submissionCount} submissions · ${periodLabel}`));
-  topRow.appendChild(left);
-
-  // Right: view toggle + period picker
-  const controls = el("div", { style: { display: "flex", gap: "10px", alignItems: "center", flexWrap: "wrap" } });
-
-  // View toggle
-  const viewToggle = div("toggle-group"); viewToggle.style.width = "auto";
-  [["daily", "Day"], ["weekly", "Week"], ["monthly", "Month"]].forEach(([v, label]) => {
-    const b = el("button", { class: `toggle-btn ${state.dashView === v ? "active" : ""}`, style: { padding: "8px 14px" }, onClick: () => setState({ dashView: v }) }, label);
-    viewToggle.appendChild(b);
+// ── Confirm modal ─────────────────────────────────────────────────────────────
+function renderModal(){
+  const qty=S.tasks.reduce((a,t)=>a+Number(t.quantity||0),0),isEdit=!!S.editId;
+  const overlay=el("div",{class:"modal-overlay"}),modal=el("div",{class:"modal"});
+  modal.appendChild(el("p",{class:"modal-title"},isEdit?"Confirm Edit":"Confirm Submission"));
+  modal.appendChild(el("p",{class:"modal-sub"},"Please double-check before confirming. Name is locked — you cannot submit as someone else."));
+  const sum=d("modal-summary");
+  [[`Submitting as`,S.member.name],["Date",fmtDate(S.date)],["Tasks",`${S.tasks.length} task${S.tasks.length!==1?"s":""}`],["Total pieces",String(qty)]].forEach(([l,v])=>{
+    const r=d("modal-row");r.appendChild(el("span",{class:"modal-label"},l));r.appendChild(el("span",{class:"modal-val"},v));sum.appendChild(r);
   });
-  controls.appendChild(viewToggle);
+  modal.appendChild(sum);
+  const ma=d("modal-actions");
+  ma.appendChild(el("button",{class:"btn-ghost",onClick:cancelConfirm},"Go back & fix"));
+  const cb=el("button",{class:"btn-primary",onClick:confirmSubmit},S.submitting?"Saving…":(isEdit?"Confirm Update":"Confirm & Submit"));
+  cb.disabled=S.submitting;ma.appendChild(cb);modal.appendChild(ma);
+  overlay.appendChild(modal);return overlay;
+}
 
-  // Period picker (changes based on view)
-  if (state.dashView === "monthly") {
-    const monthSel = el("select", { class: "field-input", style: { width: "auto", cursor: "pointer" } });
-    getMonthOptions().forEach(ym => { const o = el("option", { value: ym }, monthLabel(ym)); if (ym === state.selectedMonth) o.selected = true; monthSel.appendChild(o); });
-    monthSel.value = state.selectedMonth;
-    monthSel.addEventListener("change", e => setState({ selectedMonth: e.target.value }));
-    controls.appendChild(monthSel);
-  } else if (state.dashView === "weekly") {
-    const weekSel = el("select", { class: "field-input", style: { width: "auto", cursor: "pointer" } });
-    getWeekOptions().forEach(ws => { const o = el("option", { value: ws }, fmtWeekLabel(ws)); if (ws === state.selectedWeek) o.selected = true; weekSel.appendChild(o); });
-    weekSel.value = state.selectedWeek;
-    weekSel.addEventListener("change", e => setState({ selectedWeek: e.target.value }));
-    controls.appendChild(weekSel);
-  } else {
-    const daySel = el("select", { class: "field-input", style: { width: "auto", cursor: "pointer" } });
-    getDayOptions().forEach(d => { const o = el("option", { value: d }, fmtDate(d) + (d === todayStr() ? " (Today)" : "")); if (d === state.selectedDate) o.selected = true; daySel.appendChild(o); });
-    daySel.value = state.selectedDate;
-    daySel.addEventListener("change", e => setState({ selectedDate: e.target.value }));
-    controls.appendChild(daySel);
-  }
+// ── Manager PIN ───────────────────────────────────────────────────────────────
+function renderMgrPin(){
+  const wrap=d("auth-screen fade-in");
+  wrap.appendChild(el("div",{style:{fontSize:"28px",marginBottom:"14px"}},"🔒"));
+  wrap.appendChild(el("p",{class:"auth-title"},"Manager Access"));
+  wrap.appendChild(el("p",{class:"auth-sub"},"Enter the manager PIN to continue."));
+  const pi=el("input",{class:"pin-input",type:"password",maxlength:"20",placeholder:"••••",autocomplete:"off"});
+  pi.value=S.mgrPin;pi.addEventListener("input",e=>{S.mgrPin=e.target.value;});pi.addEventListener("keydown",e=>{if(e.key==="Enter")checkMgrPin();});
+  wrap.appendChild(pi);
+  if(S.mgrPinErr)wrap.appendChild(el("p",{style:{color:"var(--red)",fontSize:"13px",textAlign:"center",marginBottom:"12px"}},"Incorrect PIN."));
+  else wrap.appendChild(el("div",{style:{height:"12px"}}));
+  wrap.appendChild(el("button",{class:"btn-primary",onClick:checkMgrPin},"Unlock"));
+  wrap.appendChild(el("p",{class:"pin-hint"},"Default PIN: 1234"));
+  return el("div",{class:"content-narrow"},wrap);
+}
 
-  topRow.appendChild(controls);
-  wrap.appendChild(topRow);
+// ── Dashboard: Overview ───────────────────────────────────────────────────────
+function renderOverview(filtered,label){
+  const ms=memberStats(filtered),wrap=d("fade-in");
+  const tv=ms.reduce((a,m)=>a+m.videos,0),tg=ms.reduce((a,m)=>a+m.graphics,0),tot=tv+tg;
+  const cl=ms.reduce((a,m)=>a+m.clientWork,0),cp=tot>0?Math.round((cl/tot)*100):0;
+  const mx=Math.max(...ms.map(m=>m.total),1);
+  const rec=[...filtered].sort((a,b)=>(b.submittedAt||"").localeCompare(a.submittedAt||"")).slice(0,15);
 
-  // Stats grid
-  const sg = div("grid-4"); sg.style.marginBottom = "24px"; sg.style.marginTop = "8px";
-  [{ num: totalVideos, label: "Videos Edited" }, { num: totalGraphics, label: "Graphics Made" }, { num: totalOutput, label: "Total Output" }, { num: clientPct + "%", label: "Client Work" }].forEach(s => {
-    const c = div("stat-card"); c.appendChild(el("div", { class: "stat-num" }, String(s.num))); c.appendChild(el("div", { class: "stat-label" }, s.label)); sg.appendChild(c);
+  // Stat cards
+  const sg=d("grid-4");sg.style.cssText="margin-bottom:20px";
+  [{num:tv,label:"Videos Edited"},{num:tg,label:"Graphics Made"},{num:tot,label:"Total Output"},{num:cp+"%",label:"Client Work"}].forEach(s=>{
+    const c=d("stat-card");c.appendChild(el("div",{class:"stat-num"},String(s.num)));c.appendChild(el("div",{class:"stat-label"},s.label));sg.appendChild(c);
   });
   wrap.appendChild(sg);
 
-  // Team table
-  const tableWrap = el("div", { style: { background: "var(--card)", border: "1px solid var(--border)", borderRadius: "8px", marginBottom: "24px", overflowX: "auto" } });
-  tableWrap.appendChild(el("div", { class: "table-header-bar" }, el("span", { class: "table-title" }, "Team Breakdown")));
-  const table = el("table", { class: "data-table" });
-  table.appendChild(el("thead", {}, el("tr", {}, ...["Member", "Videos", "Graphics", "Total", "Client", "Internal", "Days Logged", "Relative Output"].map(h => el("th", {}, h.toUpperCase())))));
-  const tbody = el("tbody");
-  memberStats.forEach(m => {
-    const tr = el("tr"); if (m.total === 0) tr.style.opacity = "0.4";
-    const nameTd = el("td"); nameTd.appendChild(el("div", { class: "data-name" }, m.name)); nameTd.appendChild(el("div", { class: "role-tag" }, m.role)); tr.appendChild(nameTd);
-    tr.appendChild(el("td", {}, el("span", { class: "data-num", style: { color: m.videos > 0 ? "var(--accent)" : "var(--text-dim)" } }, String(m.videos))));
-    tr.appendChild(el("td", {}, el("span", { class: "data-num", style: { color: m.graphics > 0 ? "var(--red)" : "var(--text-dim)" } }, String(m.graphics))));
-    tr.appendChild(el("td", {}, el("span", { class: "data-num", style: { color: m.total > 0 ? "var(--text)" : "var(--text-dim)", fontWeight: "600" } }, String(m.total))));
-    tr.appendChild(el("td", {}, el("span", { class: "badge badge-client" }, String(m.clientWork))));
-    tr.appendChild(el("td", {}, el("span", { class: "badge badge-internal" }, String(m.internalWork))));
-    tr.appendChild(el("td", {}, el("span", { class: "role-tag" }, m.daysLogged + " days")));
-    const pct = maxTotal > 0 ? (m.total / maxTotal) * 100 : 0;
-    const barTd = el("td", { style: { minWidth: "120px" } });
-    const bw = div("bar-wrap"); const bb = div("bar-bg"); const bf = div("bar-fill"); bf.style.width = pct + "%"; bb.appendChild(bf); bw.appendChild(bb);
-    bw.appendChild(el("span", { style: { fontFamily: "JetBrains Mono,monospace", fontSize: "10px", color: "var(--text-dim)", width: "32px", flexShrink: "0" } }, Math.round(pct) + "%"));
-    barTd.appendChild(bw); tr.appendChild(barTd); tbody.appendChild(tr);
+  // Capacity section
+  const cap=capacityStats(filtered,label);
+  const capColor=cap.overallPct>=80?"high":cap.overallPct>=50?"mid":"low";
+  const cs=d("capacity-section");
+  const ch=d("capacity-header");
+  ch.appendChild(el("span",{class:"capacity-title"},"Team Utilization"));
+  const hl=el("div",{});
+  hl.appendChild(el("span",{class:`capacity-headline ${capColor}`},cap.overallPct+"%"));
+  hl.appendChild(el("span",{style:{fontFamily:"JetBrains Mono,monospace",fontSize:"11px",color:"var(--text-dim)",marginLeft:"8px"}},`${cap.totalActual} of ${cap.totalCap} target pieces`));
+  ch.appendChild(hl);cs.appendChild(ch);
+  const cr=d("capacity-rows");
+  cap.rows.forEach(r=>{
+    const row=d("capacity-row");
+    row.appendChild(el("span",{class:"capacity-name"},r.name));
+    const bw=d("capacity-bar-wrap"),bf=d("capacity-bar-fill");
+    const pct=Math.min(r.pct,100);
+    bf.style.width=pct+"%";
+    bf.style.background=r.pct>=80?"var(--green)":r.pct>=50?"var(--orange)":"var(--red)";
+    bw.appendChild(bf);row.appendChild(bw);
+    row.appendChild(el("span",{class:"capacity-nums"},`${r.total}/${r.target}`));
+    row.appendChild(el("span",{class:"capacity-pct",style:{color:r.pct>=80?"var(--green)":r.pct>=50?"var(--orange)":"var(--red)"}},r.pct+"%"));
+    cr.appendChild(row);
   });
-  table.appendChild(tbody); tableWrap.appendChild(table); wrap.appendChild(tableWrap);
+  cs.appendChild(cr);wrap.appendChild(cs);
+
+  // Team table
+  const tw=el("div",{style:{background:"var(--card)",border:"1px solid var(--border)",borderRadius:"8px",marginBottom:"24px",overflowX:"auto"}});
+  tw.appendChild(el("div",{class:"table-header-bar"},el("span",{class:"table-title"},"Team Breakdown")));
+  const table=el("table",{class:"data-table"});
+  table.appendChild(el("thead",{},el("tr",{},...["Member","Videos","Graphics","Total","Client","Internal","Days","Output"].map(h=>el("th",{},h.toUpperCase())))));
+  const tbody=el("tbody");
+  ms.forEach(m=>{
+    const tr=el("tr");if(m.total===0)tr.style.opacity="0.4";
+    const ntd=el("td");ntd.appendChild(el("div",{class:"data-name"},m.name));ntd.appendChild(el("div",{class:"role-tag"},m.role));tr.appendChild(ntd);
+    tr.appendChild(el("td",{},el("span",{class:"data-num",style:{color:m.videos>0?"var(--accent)":"var(--text-dim)"}},String(m.videos))));
+    tr.appendChild(el("td",{},el("span",{class:"data-num",style:{color:m.graphics>0?"var(--red)":"var(--text-dim)"}},String(m.graphics))));
+    tr.appendChild(el("td",{},el("span",{class:"data-num",style:{color:m.total>0?"var(--text)":"var(--text-dim)",fontWeight:"600"}},String(m.total))));
+    tr.appendChild(el("td",{},el("span",{class:"badge badge-client"},String(m.clientWork))));
+    tr.appendChild(el("td",{},el("span",{class:"badge badge-internal"},String(m.internalWork))));
+    tr.appendChild(el("td",{},el("span",{class:"role-tag"},m.daysLogged+" days")));
+    const pct=mx>0?(m.total/mx)*100:0,btd=el("td",{style:{minWidth:"120px"}});
+    const bw=d("bar-wrap"),bb=d("bar-bg"),bf=d("bar-fill");bf.style.width=pct+"%";bb.appendChild(bf);bw.appendChild(bb);
+    bw.appendChild(el("span",{style:{fontFamily:"JetBrains Mono,monospace",fontSize:"10px",color:"var(--text-dim)",width:"32px",flexShrink:"0"}},Math.round(pct)+"%"));
+    btd.appendChild(bw);tr.appendChild(btd);tbody.appendChild(tr);
+  });
+  table.appendChild(tbody);tw.appendChild(table);wrap.appendChild(tw);
 
   // Insights
-  const insights = [];
-  const editors = memberStats.filter(m => m.role === "editor");
-  const topE = [...editors].sort((a, b) => b.total - a.total)[0];
-  const botE = [...editors].sort((a, b) => a.total - b.total)[0];
-  const internalPct = 100 - clientPct;
-  if (topE && botE && topE.id !== botE.id && topE.total > 0) insights.push({ icon: "📊", title: "Output Gap", text: `${topE.name} leads this month with ${topE.total} pieces. ${botE.name} has ${botE.total}. If consistent, investigate why.` });
-  if (internalPct >= 40 && totalOutput > 0) insights.push({ icon: "⚠️", title: "High Internal Work", text: `${internalPct}% of output went to internal projects — capacity you're not billing. Is this strategic or a sign of under-booking?` });
-  if (totalOutput === 0) insights.push({ icon: "📋", title: "No data yet", text: "Once your team logs their work from any device, insights appear here automatically." });
-  const inactive = memberStats.filter(m => m.daysLogged === 0).map(m => m.name);
-  if (inactive.length > 0 && totalOutput > 0) insights.push({ icon: "🔴", title: "No submissions", text: `${inactive.join(", ")} ${inactive.length > 1 ? "have" : "has"} not logged any work this month.` });
-
-  if (insights.length > 0) {
-    wrap.appendChild(el("div", { style: { marginBottom: "12px" } }, el("span", { class: "table-title" }, "Insights")));
-    insights.forEach(ins => {
-      const c = div("insight-card"); c.appendChild(el("div", { class: "insight-icon" }, ins.icon));
-      const b = div("insight-body"); b.appendChild(el("div", { class: "insight-title" }, ins.title)); b.appendChild(el("div", { class: "insight-text" }, ins.text));
-      c.appendChild(b); wrap.appendChild(c);
+  const insights=[];
+  const eds=ms.filter(m=>m.role==="editor");
+  const topE=[...eds].sort((a,b)=>b.total-a.total)[0],botE=[...eds].sort((a,b)=>a.total-b.total)[0];
+  if(topE&&botE&&topE.id!==botE.id&&topE.total>0)insights.push({i:"📊",t:"Output Gap",x:`${topE.name} leads with ${topE.total} pieces. ${botE.name} has ${botE.total}. If consistent, investigate why.`});
+  if((100-cp)>=40&&tot>0)insights.push({i:"⚠️",t:"High Internal Work",x:`${100-cp}% went to internal projects — capacity you're not billing.`});
+  if(tot===0)insights.push({i:"📋",t:"No data yet",x:"Once your team logs their work, insights appear here."});
+  const inactive=ms.filter(m=>m.daysLogged===0).map(m=>m.name);
+  if(inactive.length>0&&tot>0)insights.push({i:"🔴",t:"No submissions",x:`${inactive.join(", ")} ${inactive.length>1?"have":"has"} not logged this period.`});
+  if(cap.overallPct<50&&tot>0)insights.push({i:"📉",t:"Low Utilization",x:`Team is at ${cap.overallPct}% capacity. Either get more work in, or reassess daily targets in Settings.`});
+  if(insights.length>0){
+    wrap.appendChild(el("div",{style:{marginBottom:"12px"}},el("span",{class:"table-title"},"Insights")));
+    insights.forEach(ins=>{
+      const c=d("insight-card");c.appendChild(el("div",{class:"insight-icon"},ins.i));
+      const b=el("div",{});b.appendChild(el("div",{class:"insight-title"},ins.t));b.appendChild(el("div",{class:"insight-text"},ins.x));
+      c.appendChild(b);wrap.appendChild(c);
     });
-    wrap.appendChild(el("div", { style: { height: "12px" } }));
+    wrap.appendChild(el("div",{style:{height:"12px"}}));
   }
 
-  // Recent submissions
-  const rw = el("div", { style: { background: "var(--card)", border: "1px solid var(--border)", borderRadius: "8px", overflow: "hidden" } });
-  const rh = div("table-header-bar");
-  rh.appendChild(el("span", { class: "table-title" }, "Recent Submissions"));
-  rh.appendChild(el("span", { style: { fontFamily: "JetBrains Mono,monospace", fontSize: "10px", color: "var(--text-dim)" } }, `Last 15 entries · ${periodLabel}`));
+  // Recent submissions with manager notes
+  const rw=el("div",{style:{background:"var(--card)",border:"1px solid var(--border)",borderRadius:"8px",overflow:"hidden"}});
+  const rh=d("table-header-bar");
+  rh.appendChild(el("span",{class:"table-title"},"Recent Submissions"));
+  rh.appendChild(el("span",{style:{fontFamily:"JetBrains Mono,monospace",fontSize:"10px",color:"var(--text-dim)"}},`Last 15 · ${label}`));
   rw.appendChild(rh);
-  if (recentEntries.length === 0) {
-    rw.appendChild(el("div", { class: "empty" }, "No entries yet. Share the link with your team and ask them to log their first day."));
-  } else {
-    recentEntries.forEach(entry => {
-      const item = div("log-item");
-      const meta = div("log-meta");
-      meta.appendChild(el("span", { class: "log-name" }, entry.memberName || "Unknown"));
-      meta.appendChild(el("span", { class: "log-date" }, fmtDate(entry.date)));
-      item.appendChild(meta);
-      const tasks = div("log-tasks");
-      (entry.tasks || []).forEach(t => {
-        const pill = div("log-task-pill");
-        pill.appendChild(el("span", { class: `badge badge-${t.projectType}` }, t.projectType));
-        pill.appendChild(el("span", { class: `badge badge-${t.contentType}` }, t.contentType));
-        pill.appendChild(el("span", { class: "log-task-name" }, t.project || "—"));
-        pill.appendChild(el("span", { class: "log-task-qty" }, "×" + (t.quantity || 1)));
-        if (t.driveLink) pill.appendChild(el("a", { class: "drive-link", href: t.driveLink, target: "_blank", rel: "noopener" }, "📁 Drive"));
-        tasks.appendChild(pill);
-      });
-      item.appendChild(tasks);
-      const notes = (entry.tasks || []).filter(t => t.notes).map(t => t.notes).join(" · ");
-      if (notes) item.appendChild(el("div", { style: { marginTop: "6px", fontSize: "12px", color: "var(--text-dim)", fontStyle: "italic" } }, notes));
-      rw.appendChild(item);
-    });
-  }
+  if(rec.length===0)rw.appendChild(el("div",{class:"empty"},"No entries for this period."));
+  else rec.forEach(entry=>{
+    const item=d("log-item"),meta=d("log-meta");
+    const left=el("div",{});
+    left.appendChild(el("span",{class:"log-name"},entry.memberName||"Unknown"));
+    left.appendChild(el("span",{style:{fontFamily:"JetBrains Mono,monospace",fontSize:"10px",color:"var(--text-dim)",marginLeft:"10px"}},fmtDateShort(entry.date)));
+    meta.appendChild(left);
+    const ea=d("log-actions");
+    const noteBtn=el("button",{class:`btn-note${entry.managerNote?" has-note":""}`,onClick:()=>S.noteEditId===entry.id?cancelNote():startNote(entry)},entry.managerNote?"📌 Note":"+ Note");
+    ea.appendChild(noteBtn);
+    const mgrDelBtn=el("button",{class:"btn-del",onClick:async()=>{if(!confirm(`Delete ${entry.memberName}'s entry for ${fmtDate(entry.date)}? They will need to resubmit.`))return;set({sync:"syncing"});try{await removeEntry(entry.id);set({entries:S.entries.filter(e=>e.id!==entry.id),sync:"ok"});}catch{set({sync:"error"});}}},"✕ Delete");
+    ea.appendChild(mgrDelBtn);
+    meta.appendChild(ea);item.appendChild(meta);
+    item.appendChild(taskPills(entry.tasks));
+    // Note display or edit
+    if(S.noteEditId===entry.id){
+      const nr=d("note-edit-row");
+      const ni=el("input",{class:"note-edit-input",type:"text",placeholder:"Add a manager note… (visible to the employee)",value:S.noteText});
+      ni.addEventListener("input",e=>{S.noteText=e.target.value;});
+      ni.addEventListener("keydown",e=>{if(e.key==="Enter")saveNote();if(e.key==="Escape")cancelNote();});
+      const sb3=el("button",{class:"btn-ghost-sm",onClick:saveNote},S.noteSaving?"Saving…":"Save");
+      sb3.disabled=S.noteSaving;
+      const cb2=el("button",{class:"btn-remove",onClick:cancelNote},"✕");
+      nr.appendChild(ni);nr.appendChild(sb3);nr.appendChild(cb2);
+      item.appendChild(nr);
+    }else if(entry.managerNote){
+      const n=d("manager-note-display");
+      n.appendChild(el("span",{class:"manager-note-icon"},"📌"));
+      n.appendChild(el("span",{class:"manager-note-text"},entry.managerNote));
+      item.appendChild(n);
+    }
+    rw.appendChild(item);
+  });
   wrap.appendChild(rw);
-  return el("div", { class: "content" }, wrap);
+  return wrap;
 }
 
-// ─── RENDER: SETTINGS ─────────────────────────────────────────────────────────
-function renderSettings() {
-  const wrap = div("fade-in");
-  const th = div(""); th.style.marginBottom = "28px";
-  th.appendChild(el("h2", { class: "section-title" }, "Settings"));
-  th.appendChild(el("p", { class: "section-sub", style: { marginTop: "4px" } }, "Changes save to the cloud instantly and reflect everywhere."));
+// ── Dashboard: Clients ────────────────────────────────────────────────────────
+function renderClients(filtered,label){
+  const cs=clientStats(filtered),wrap=d("fade-in");
+  const th=el("div",{style:{marginBottom:"20px"}});
+  th.appendChild(el("h3",{style:{fontFamily:"Syne,sans-serif",fontWeight:"700",fontSize:"16px"}},"Client Output"));
+  th.appendChild(el("p",{style:{fontSize:"13px",color:"var(--text-dim)",marginTop:"4px"}},`${cs.length} active client${cs.length!==1?"s":""} · ${label}`));
   wrap.appendChild(th);
-  if (state.settingsSaved) wrap.appendChild(div("success-msg", "✓ Settings saved to cloud."));
-  if (state.settingsError) wrap.appendChild(div("error-msg", "⚠ " + state.settingsError));
+  if(cs.length===0){wrap.appendChild(el("div",{class:"empty"},"No client work logged for this period."));return wrap;}
 
-  // Team
-  const teamSec = div("settings-section");
-  teamSec.appendChild(el("div", { class: "settings-header" }, el("span", { class: "settings-title" }, "Team Members")));
-  const teamBody = div("settings-body");
-  const pillList = div("pill-list");
-  state.config.team.forEach(m => {
-    const pill = div("pill-item");
-    pill.appendChild(el("span", {}, m.name)); pill.appendChild(el("span", { class: "pill-role" }, m.role));
-    pill.appendChild(el("button", { class: "pill-remove", onClick: () => removeMember(m.id) }, "×"));
-    pillList.appendChild(pill);
+  // Client cards grid
+  const grid=d("clients-grid");
+  cs.forEach(c=>{
+    const card=d("client-card");
+    card.appendChild(el("div",{class:"client-card-name"},c.name));
+    const sr=d("client-stat-row");
+    [{v:c.total,l:"Total Pieces"},{v:c.videos,l:"Videos"},{v:c.graphics,l:"Graphics"},{v:c.days,l:"Active Days"}].forEach(s=>{
+      const cs2=d("client-stat");cs2.appendChild(el("div",{class:"client-stat-val"},String(s.v)));cs2.appendChild(el("div",{class:"client-stat-lbl"},s.l));sr.appendChild(cs2);
+    });
+    card.appendChild(sr);
+    // Editors (internal only)
+    if(c.editors.length>0){
+      const et=d("client-editors");
+      c.editors.forEach(e=>et.appendChild(el("span",{class:"editor-tag"},e)));
+      card.appendChild(et);
+    }
+    grid.appendChild(card);
   });
-  teamBody.appendChild(pillList);
-  const addMRow = div("add-row");
-  const mnI = el("input", { class: "field-input", type: "text", placeholder: "Full name…", value: state.newMemberName });
-  mnI.addEventListener("input", e => { state.newMemberName = e.target.value; });
-  mnI.addEventListener("keydown", e => { if (e.key === "Enter") addMember(); });
-  const rSel = el("select", { class: "field-input", style: { width: "130px", flexShrink: "0", cursor: "pointer" } });
-  ["editor", "designer", "manager"].forEach(r => { const o = el("option", { value: r }, r); if (r === state.newMemberRole) o.selected = true; rSel.appendChild(o); });
-  rSel.value = state.newMemberRole;
-  rSel.addEventListener("change", e => { state.newMemberRole = e.target.value; });
-  addMRow.appendChild(mnI); addMRow.appendChild(rSel); addMRow.appendChild(el("button", { class: "btn-ghost-sm", onClick: addMember }, "+ Add"));
-  teamBody.appendChild(addMRow); teamSec.appendChild(teamBody); wrap.appendChild(teamSec);
+  wrap.appendChild(grid);
+
+  // Summary table
+  const tw=el("div",{style:{background:"var(--card)",border:"1px solid var(--border)",borderRadius:"8px",overflowX:"auto"}});
+  tw.appendChild(el("div",{class:"table-header-bar"},el("span",{class:"table-title"},"All Clients — Ranked by Output")));
+  const table=el("table",{class:"data-table"});
+  table.appendChild(el("thead",{},el("tr",{},...["Client","Videos","Graphics","Total","Active Days","Team"].map(h=>el("th",{},h.toUpperCase())))));
+  const tbody=el("tbody");
+  cs.forEach(c=>{
+    const tr=el("tr");
+    tr.appendChild(el("td",{},el("span",{class:"data-name"},c.name)));
+    tr.appendChild(el("td",{},el("span",{class:"data-num",style:{color:"var(--accent)"}},String(c.videos))));
+    tr.appendChild(el("td",{},el("span",{class:"data-num",style:{color:"var(--red)"}},String(c.graphics))));
+    tr.appendChild(el("td",{},el("span",{class:"data-num",style:{fontWeight:"600"}},String(c.total))));
+    tr.appendChild(el("td",{},el("span",{class:"role-tag"},c.days+" days")));
+    const etd=el("td",{});
+    c.editors.forEach(e=>etd.appendChild(el("span",{class:"editor-tag",style:{marginRight:"4px"}},e)));
+    tr.appendChild(etd);tbody.appendChild(tr);
+  });
+  table.appendChild(tbody);tw.appendChild(table);wrap.appendChild(tw);
+  return wrap;
+}
+
+// ── Dashboard: Summary ────────────────────────────────────────────────────────
+function renderSummary(filtered,label){
+  const ms=memberStats(filtered),wrap=d("fade-in");
+  const tv=ms.reduce((a,m)=>a+m.videos,0),tg=ms.reduce((a,m)=>a+m.graphics,0),tot=tv+tg;
+  const cl=ms.reduce((a,m)=>a+m.clientWork,0),cp=tot>0?Math.round((cl/tot)*100):0;
+  const topPerformer=[...ms].sort((a,b)=>b.total-a.total)[0];
+  const cs2=clientStats(filtered);
+
+  const report=d("summary-report");
+  // Top bar
+  const top=d("summary-top");
+  const topLeft=el("div",{});
+  topLeft.appendChild(el("div",{class:"summary-agency"},"NEED CONSULTANCY"));
+  topLeft.appendChild(el("div",{class:"summary-period"},"Monthly Output Report · "+label));
+  top.appendChild(topLeft);
+  const sa=d("summary-actions");
+  sa.appendChild(el("button",{class:"btn-ghost-sm",onClick:()=>{
+    // Copy as plain text
+    let txt=`NEED CONSULTANCY — Output Report\n${label}\n\n`;
+    txt+=`SUMMARY\nTotal Output: ${tot} pieces\nVideos: ${tv} | Graphics: ${tg}\nClient Work: ${cp}%\n\n`;
+    txt+="TEAM BREAKDOWN\n";
+    ms.forEach(m=>{txt+=`${m.name}: ${m.total} pieces (${m.videos} videos, ${m.graphics} graphics) — ${m.daysLogged} days logged\n`;});
+    if(cs2.length>0){txt+="\nCLIENT SUMMARY\n";cs2.forEach(c=>{txt+=`${c.name}: ${c.total} pieces\n`;});}
+    if(topPerformer&&topPerformer.total>0)txt+=`\nTOP PERFORMER\n${topPerformer.name} — ${topPerformer.total} pieces`;
+    navigator.clipboard.writeText(txt).then(()=>alert("Report copied to clipboard! Paste into WhatsApp or email.")).catch(()=>alert("Copy failed — try the Print option instead."));
+  }},"📋 Copy as Text"));
+  sa.appendChild(el("button",{class:"btn-ghost-sm",onClick:()=>window.print()},"🖨 Print / Save PDF"));
+  top.appendChild(sa);report.appendChild(top);
+
+  // KPIs
+  const kpiSec=d("summary-section");
+  kpiSec.appendChild(el("p",{class:"summary-section-title"},"At a Glance"));
+  const kpis=d("summary-kpis");
+  [{n:tot,l:"Total Output"},{n:tv,l:"Videos Edited"},{n:tg,l:"Graphics Made"},{n:cp+"%",l:"Client Work"}].forEach(k=>{
+    const c=d("summary-kpi");c.appendChild(el("div",{class:"summary-kpi-num"},String(k.n)));c.appendChild(el("div",{class:"summary-kpi-lbl"},k.l));kpis.appendChild(c);
+  });
+  kpiSec.appendChild(kpis);report.appendChild(kpiSec);
+
+  // Top performer
+  if(topPerformer&&topPerformer.total>0){
+    const tpSec=d("summary-section");
+    tpSec.appendChild(el("p",{class:"summary-section-title"},"Top Performer"));
+    const tp=d("top-performer");
+    tp.appendChild(el("span",{class:"top-performer-icon"},"🏆"));
+    const tpb=el("div",{});
+    tpb.appendChild(el("div",{class:"top-performer-name"},topPerformer.name));
+    tpb.appendChild(el("div",{class:"top-performer-sub"},`${topPerformer.total} pieces · ${topPerformer.videos} videos · ${topPerformer.graphics} graphics · ${topPerformer.daysLogged} days logged`));
+    tp.appendChild(tpb);tpSec.appendChild(tp);report.appendChild(tpSec);
+  }
+
+  // Team breakdown
+  const tbSec=d("summary-section");
+  tbSec.appendChild(el("p",{class:"summary-section-title"},"Team Breakdown"));
+  const tbl=el("table",{class:"summary-table"});
+  tbl.appendChild(el("thead",{},el("tr",{},...["Team Member","Role","Videos","Graphics","Total","Client","Internal","Days Logged"].map(h=>el("th",{},h.toUpperCase())))));
+  const tbody2=el("tbody");
+  ms.forEach(m=>{
+    const tr=el("tr");if(m.total===0)tr.style.opacity="0.4";
+    [m.name,m.role,m.videos,m.graphics,m.total,m.clientWork,m.internalWork,m.daysLogged+" days"].forEach((v,i)=>{
+      const td=el("td",{},String(v));
+      if(i===0)td.style.fontFamily="Syne,sans-serif";if(i===0)td.style.fontWeight="600";
+      if(i===4)td.style.fontWeight="700";
+      tr.appendChild(td);
+    });
+    tbody2.appendChild(tr);
+  });
+  tbl.appendChild(tbody2);tbSec.appendChild(tbl);report.appendChild(tbSec);
+
+  // Client summary
+  if(cs2.length>0){
+    const csSec=d("summary-section");
+    csSec.appendChild(el("p",{class:"summary-section-title"},"Client Summary"));
+    const ctbl=el("table",{class:"summary-table"});
+    ctbl.appendChild(el("thead",{},el("tr",{},...["Client","Videos","Graphics","Total Pieces","Active Days"].map(h=>el("th",{},h.toUpperCase())))));
+    const ctbody=el("tbody");
+    cs2.forEach(c=>{
+      const tr=el("tr");
+      [c.name,c.videos,c.graphics,c.total,c.days+" days"].forEach((v,i)=>{
+        const td=el("td",{},String(v));if(i===0){td.style.fontFamily="Syne,sans-serif";td.style.fontWeight="600";}if(i===3)td.style.fontWeight="700";tr.appendChild(td);
+      });
+      ctbody.appendChild(tr);
+    });
+    ctbl.appendChild(ctbody);csSec.appendChild(ctbl);report.appendChild(csSec);
+  }
+
+  wrap.appendChild(report);
+  return wrap;
+}
+
+// ── Dashboard ─────────────────────────────────────────────────────────────────
+function renderDash(){
+  const{filtered,label}=getFiltered();
+  const wrap=d("fade-in");
+
+  // Top row
+  const top=el("div",{style:{display:"flex",justifyContent:"space-between",alignItems:"flex-start",marginBottom:"20px",flexWrap:"wrap",gap:"14px"}});
+  const left=d("");
+  left.appendChild(el("h2",{class:"section-title"},"Dashboard"));
+  left.appendChild(el("p",{class:"section-sub",style:{marginTop:"4px"}},`${filtered.length} submissions · ${label}`));
+  top.appendChild(left);
+  top.appendChild(periodControls());
+  wrap.appendChild(top);
+
+  // Sub-tabs
+  const st=d("subtabs");
+  [["overview","Overview"],["clients","Clients"],["summary","Monthly Summary"]].forEach(([id,label2])=>{
+    st.appendChild(el("button",{class:`subtab${S.dashTab===id?" active":""}`,onClick:()=>set({dashTab:id})},label2));
+  });
+  wrap.appendChild(st);
+
+  if(S.dashTab==="overview")wrap.appendChild(renderOverview(filtered,label));
+  else if(S.dashTab==="clients")wrap.appendChild(renderClients(filtered,label));
+  else if(S.dashTab==="summary")wrap.appendChild(renderSummary(filtered,label));
+
+  return el("div",{class:"content"},wrap);
+}
+
+// ── Settings ──────────────────────────────────────────────────────────────────
+function renderSettings(){
+  const wrap=d("fade-in");
+  const th=d("");th.style.marginBottom="28px";
+  th.appendChild(el("h2",{class:"section-title"},"Settings"));
+  th.appendChild(el("p",{class:"section-sub",style:{marginTop:"4px"}},"All changes sync to cloud instantly."));
+  wrap.appendChild(th);
+  if(S.saved)wrap.appendChild(d("success-msg","✓ Settings saved to cloud."));
+  if(S.saveErr)wrap.appendChild(d("error-msg","⚠ "+S.saveErr));
+
+  // Team members
+  const ts=d("settings-section");ts.appendChild(el("div",{class:"settings-header"},el("span",{class:"settings-title"},"Team Members")));
+  const tb=d("settings-body"),pl=d("pill-list");
+  S.config.team.forEach(m=>{const pill=d("pill-item");pill.appendChild(el("span",{},m.name));pill.appendChild(el("span",{class:"pill-role"},m.role));pill.appendChild(el("button",{class:"pill-remove",onClick:()=>rmMember(m.id)},"×"));pl.appendChild(pill);});
+  tb.appendChild(pl);
+  const ar=d("add-row"),ni2=el("input",{class:"field-input",type:"text",placeholder:"Full name…",value:S.newName});
+  ni2.addEventListener("input",e=>{S.newName=e.target.value;});ni2.addEventListener("keydown",e=>{if(e.key==="Enter")addMember();});
+  const rs=el("select",{class:"field-input",style:{width:"130px",flexShrink:"0",cursor:"pointer"}});
+  ["editor","designer","manager"].forEach(r=>{const o=el("option",{value:r},r);if(r===S.newRole)o.selected=true;rs.appendChild(o);});
+  rs.value=S.newRole;rs.addEventListener("change",e=>{S.newRole=e.target.value;});
+  ar.appendChild(ni2);ar.appendChild(rs);ar.appendChild(el("button",{class:"btn-ghost-sm",onClick:addMember},"+ Add"));
+  tb.appendChild(ar);ts.appendChild(tb);wrap.appendChild(ts);
+
+  // Member PINs
+  const mps=d("settings-section");
+  const mph=el("div",{class:"settings-header"});mph.appendChild(el("span",{class:"settings-title"},"Member PINs"));mph.appendChild(el("span",{class:"settings-hint"},"Each person's login PIN"));
+  mps.appendChild(mph);
+  const mpb=d("settings-body");
+  S.config.team.forEach(m=>{
+    const row=d("pin-row");
+    row.appendChild(el("div",{class:"pin-row-name"},m.name));
+    row.appendChild(el("div",{class:"pin-row-role"},m.role));
+    const pi=el("input",{class:"pin-row-input",type:"text",maxlength:"10",placeholder:"0000",value:S.pinEdits[m.id]!==undefined?S.pinEdits[m.id]:(m.memberPin||"0000")});
+    pi.addEventListener("input",e=>{S.pinEdits={...S.pinEdits,[m.id]:e.target.value};});
+    row.appendChild(pi);mpb.appendChild(row);
+  });
+  mpb.appendChild(el("div",{style:{marginTop:"16px"}},el("button",{class:"btn-ghost-sm",onClick:savePins},"💾 Save all PINs")));
+  mps.appendChild(mpb);wrap.appendChild(mps);
+
+  // Capacity targets
+  const caps=d("settings-section");
+  const caph=el("div",{class:"settings-header"});caph.appendChild(el("span",{class:"settings-title"},"Daily Output Targets"));caph.appendChild(el("span",{class:"settings-hint"},"Pieces per person per working day"));
+  caps.appendChild(caph);
+  const capb=d("settings-body");
+  const ct=S.config.capacity_targets||{editor:3,designer:5};
+  const roles=[...new Set(S.config.team.map(m=>m.role))];
+  roles.forEach(role=>{
+    const row=d("capacity-target-row");
+    const lft=el("div",{});
+    lft.appendChild(el("div",{class:"capacity-target-label",style:{fontFamily:"Syne,sans-serif",fontWeight:"600"}},role.charAt(0).toUpperCase()+role.slice(1)));
+    lft.appendChild(el("div",{class:"capacity-target-sub"},"videos or graphics per day"));
+    row.appendChild(lft);
+    const inp=el("input",{class:"capacity-target-input",type:"number",min:"1",max:"99",value:S.capEdits[role]!==undefined?S.capEdits[role]:(ct[role]||3)});
+    inp.addEventListener("input",e=>{S.capEdits={...S.capEdits,[role]:e.target.value};});
+    row.appendChild(inp);capb.appendChild(row);
+  });
+  capb.appendChild(el("div",{style:{marginTop:"16px"}},el("button",{class:"btn-ghost-sm",onClick:saveCapacity},"💾 Save Targets")));
+  caps.appendChild(capb);wrap.appendChild(caps);
 
   // Clients
-  const cSec = div("settings-section");
-  cSec.appendChild(el("div", { class: "settings-header" }, el("span", { class: "settings-title" }, "Client Names")));
-  const cBody = div("settings-body");
-  const cPills = div("pill-list");
-  state.config.clients.forEach(c => {
-    const pill = div("pill-item"); pill.appendChild(el("span", {}, c));
-    pill.appendChild(el("button", { class: "pill-remove", onClick: () => removeClient(c) }, "×")); cPills.appendChild(pill);
-  });
-  cBody.appendChild(cPills);
-  const addCRow = div("add-row");
-  const cI = el("input", { class: "field-input", type: "text", placeholder: "Client name…", value: state.newClient });
-  cI.addEventListener("input", e => { state.newClient = e.target.value; });
-  cI.addEventListener("keydown", e => { if (e.key === "Enter") addClient(); });
-  addCRow.appendChild(cI); addCRow.appendChild(el("button", { class: "btn-ghost-sm", onClick: addClient }, "+ Add"));
-  cBody.appendChild(addCRow); cSec.appendChild(cBody); wrap.appendChild(cSec);
+  const cs=d("settings-section");cs.appendChild(el("div",{class:"settings-header"},el("span",{class:"settings-title"},"Client Names")));
+  const cb=d("settings-body"),cp2=d("pill-list");
+  S.config.clients.forEach(c=>{const pill=d("pill-item");pill.appendChild(el("span",{},c));pill.appendChild(el("button",{class:"pill-remove",onClick:()=>rmClient(c)},"×"));cp2.appendChild(pill);});
+  cb.appendChild(cp2);
+  const cr=d("add-row"),ci=el("input",{class:"field-input",type:"text",placeholder:"Client name…",value:S.newClient});
+  ci.addEventListener("input",e=>{S.newClient=e.target.value;});ci.addEventListener("keydown",e=>{if(e.key==="Enter")addClient();});
+  cr.appendChild(ci);cr.appendChild(el("button",{class:"btn-ghost-sm",onClick:addClient},"+ Add"));
+  cb.appendChild(cr);cs.appendChild(cb);wrap.appendChild(cs);
 
   // Internal
-  const iSec = div("settings-section");
-  iSec.appendChild(el("div", { class: "settings-header" }, el("span", { class: "settings-title" }, "Internal Projects")));
-  const iBody = div("settings-body");
-  const iPills = div("pill-list");
-  state.config.internal_projects.forEach(p => {
-    const pill = div("pill-item"); pill.appendChild(el("span", {}, p));
-    pill.appendChild(el("button", { class: "pill-remove", onClick: () => removeInternal(p) }, "×")); iPills.appendChild(pill);
-  });
-  iBody.appendChild(iPills);
-  const addIRow = div("add-row");
-  const iI = el("input", { class: "field-input", type: "text", placeholder: "Internal project name…", value: state.newInternal });
-  iI.addEventListener("input", e => { state.newInternal = e.target.value; });
-  iI.addEventListener("keydown", e => { if (e.key === "Enter") addInternal(); });
-  addIRow.appendChild(iI); addIRow.appendChild(el("button", { class: "btn-ghost-sm", onClick: addInternal }, "+ Add"));
-  iBody.appendChild(addIRow); iSec.appendChild(iBody); wrap.appendChild(iSec);
+  const is=d("settings-section");is.appendChild(el("div",{class:"settings-header"},el("span",{class:"settings-title"},"Internal Projects")));
+  const ib=d("settings-body"),ip=d("pill-list");
+  S.config.internal_projects.forEach(p=>{const pill=d("pill-item");pill.appendChild(el("span",{},p));pill.appendChild(el("button",{class:"pill-remove",onClick:()=>rmInternal(p)},"×"));ip.appendChild(pill);});
+  ib.appendChild(ip);
+  const ir=d("add-row"),ii=el("input",{class:"field-input",type:"text",placeholder:"Internal project name…",value:S.newInternal});
+  ii.addEventListener("input",e=>{S.newInternal=e.target.value;});ii.addEventListener("keydown",e=>{if(e.key==="Enter")addInternal();});
+  ir.appendChild(ii);ir.appendChild(el("button",{class:"btn-ghost-sm",onClick:addInternal},"+ Add"));
+  ib.appendChild(ir);is.appendChild(ib);wrap.appendChild(is);
 
-  // PIN
-  const pSec = div("settings-section");
-  pSec.appendChild(el("div", { class: "settings-header" }, el("span", { class: "settings-title" }, "Change Dashboard PIN")));
-  const pBody = div("settings-body");
-  const pGrid = div("grid-3");
-  const p1 = el("input", { class: "field-input", type: "password", placeholder: "New PIN", value: state.newPin });
-  p1.addEventListener("input", e => { state.newPin = e.target.value; });
-  const p2 = el("input", { class: "field-input", type: "password", placeholder: "Confirm PIN", value: state.newPin2 });
-  p2.addEventListener("input", e => { state.newPin2 = e.target.value; });
-  p2.addEventListener("keydown", e => { if (e.key === "Enter") changePin(); });
-  pGrid.appendChild(field("New PIN", p1)); pGrid.appendChild(field("Confirm PIN", p2));
-  pGrid.appendChild(el("div", { style: { display: "flex", alignItems: "flex-end" } }, el("button", { class: "btn-ghost-sm", style: { width: "100%" }, onClick: changePin }, "Update PIN")));
-  pBody.appendChild(pGrid);
-  if (state.pinChangeMsg) {
-    const isOk = state.pinChangeMsg.startsWith("ok:");
-    pBody.appendChild(el("p", { style: { marginTop: "10px", fontSize: "13px", color: isOk ? "var(--green)" : "var(--red)" } }, state.pinChangeMsg.slice(3)));
-  }
-  pSec.appendChild(pBody); wrap.appendChild(pSec);
-  return el("div", { class: "content" }, wrap);
+  // Manager PIN
+  const mp=d("settings-section");mp.appendChild(el("div",{class:"settings-header"},el("span",{class:"settings-title"},"Manager / Dashboard PIN")));
+  const mpb2=d("settings-body"),mpg=d("grid-3");
+  const p1=el("input",{class:"field-input",type:"password",placeholder:"New PIN",value:S.newMgrPin});p1.addEventListener("input",e=>{S.newMgrPin=e.target.value;});
+  const p2=el("input",{class:"field-input",type:"password",placeholder:"Confirm PIN",value:S.newMgrPin2});p2.addEventListener("input",e=>{S.newMgrPin2=e.target.value;});p2.addEventListener("keydown",e=>{if(e.key==="Enter")changeMgrPin();});
+  mpg.appendChild(fld("New PIN",p1));mpg.appendChild(fld("Confirm PIN",p2));
+  mpg.appendChild(el("div",{style:{display:"flex",alignItems:"flex-end"}},el("button",{class:"btn-ghost-sm",style:{width:"100%"},onClick:changeMgrPin},"Update")));
+  mpb2.appendChild(mpg);
+  if(S.mgrPinMsg){const ok=S.mgrPinMsg.startsWith("ok:");mpb2.appendChild(el("p",{style:{marginTop:"10px",fontSize:"13px",color:ok?"var(--green)":"var(--red)"}},S.mgrPinMsg.slice(3)));}
+  mp.appendChild(mpb2);wrap.appendChild(mp);
+  return el("div",{class:"content"},wrap);
 }
 
-// ─── RENDER: PIN ──────────────────────────────────────────────────────────────
-function renderPin() {
-  const wrap = div("pin-screen fade-in");
-  wrap.appendChild(el("div", { style: { fontSize: "32px", marginBottom: "16px" } }, "🔒"));
-  wrap.appendChild(el("p", { class: "pin-title" }, "Manager Access"));
-  wrap.appendChild(el("p", { class: "pin-sub" }, "Enter your PIN to continue."));
-  const pi = el("input", { class: "field-input", type: "password", maxlength: "20", placeholder: "••••", autocomplete: "off", style: { textAlign: "center", fontSize: "22px", letterSpacing: "0.4em", marginBottom: "10px" } });
-  pi.value = state.pin;
-  pi.addEventListener("input", e => { state.pin = e.target.value; });
-  pi.addEventListener("keydown", e => { if (e.key === "Enter") checkPin(); });
-  wrap.appendChild(pi);
-  if (state.pinErr) wrap.appendChild(el("p", { style: { color: "var(--red)", fontSize: "13px", marginBottom: "10px" } }, "Incorrect PIN. Try again."));
-  else wrap.appendChild(el("div", { style: { height: "10px" } }));
-  wrap.appendChild(el("button", { class: "btn-primary", onClick: checkPin }, "Unlock"));
-  wrap.appendChild(el("p", { class: "pin-hint" }, "Default PIN: 1234"));
-  return el("div", { class: "content" }, wrap);
-}
-
-// ─── MAIN RENDER ──────────────────────────────────────────────────────────────
-function render() {
-  const root = document.getElementById("app");
-  root.innerHTML = "";
-  if (!state.loaded) {
-    const app = div("app");
-    app.appendChild(renderHeader());
-    const loading = div("loading-screen");
-    loading.appendChild(el("div", { class: "loading-spinner" }));
-    loading.appendChild(el("span", { class: "loading-text" }, "Connecting to cloud…"));
-    app.appendChild(el("div", { class: "content" }, loading));
-    root.appendChild(app);
-    return;
+// ── Main render ───────────────────────────────────────────────────────────────
+function render(){
+  const root=document.getElementById("app");root.innerHTML="";
+  if(!S.loaded){
+    const app=d("app");app.appendChild(renderHeader());
+    const ls=d("loading-screen");ls.appendChild(el("div",{class:"loading-spinner"}));ls.appendChild(el("span",{class:"loading-text"},"Connecting to cloud…"));
+    app.appendChild(el("div",{class:"content"},ls));root.appendChild(app);return;
   }
-  const app = div("app");
-  app.appendChild(renderHeader());
-
-  const tabsEl = el("div", { class: "tabs" });
-  const tabsInner = el("div", { class: "tabs-inner" });
-  [{ id: "log", label: "Log Work" }, { id: "dash", label: "Dashboard" }, { id: "settings", label: "⚙ Settings" }].forEach(t => {
-    tabsInner.appendChild(el("button", { class: `tab ${state.tab === t.id ? "active" : ""}`, onClick: () => setState({ tab: t.id }) }, t.label));
-  });
-  tabsEl.appendChild(tabsInner); app.appendChild(tabsEl);
-
-  if (state.tab === "log") app.appendChild(renderLog());
-  else if (state.tab === "dash") app.appendChild(state.pinUnlocked ? renderDashboard() : renderPin());
-  else if (state.tab === "settings") app.appendChild(state.pinUnlocked ? renderSettings() : renderPin());
-
+  const app=d("app");app.appendChild(renderHeader());
+  const tabsEl=el("div",{class:"tabs"}),tabsIn=el("div",{class:"tabs-inner"});
+  [["log","Log Work"],["dash","Dashboard"],["settings","⚙ Settings"]].forEach(([id,label])=>tabsIn.appendChild(el("button",{class:`tab${S.tab===id?" active":""}`,onClick:()=>set({tab:id})},label)));
+  tabsEl.appendChild(tabsIn);app.appendChild(tabsEl);
+  if(S.tab==="log")app.appendChild(renderLog());
+  else if(S.tab==="dash")app.appendChild(S.managerOk?renderDash():renderMgrPin());
+  else if(S.tab==="settings")app.appendChild(S.managerOk?renderSettings():renderMgrPin());
+  if(S.confirm)app.appendChild(renderModal());
   root.appendChild(app);
 }
 
