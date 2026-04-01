@@ -7,119 +7,139 @@
 <style>
   @import url('https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;1,9..40,400&family=JetBrains+Mono:wght@400;500&display=swap');
   *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+  /* ── Dark theme (default) ── */
   :root{
-    --bg:#0D0D0D;--card:#161616;--card2:#1C1C1C;--border:#242424;
-    --accent:#E8C547;--accent-dim:rgba(232,197,71,0.12);--accent-glow:rgba(232,197,71,0.06);
-    --text:#F0F0F0;--text-dim:#666;--text-mid:#999;
+    --bg:#0D0D0D;--card:#161616;--card2:#1C1C1C;--border:#2A2A2A;
+    --accent:#E8C547;--accent-dim:rgba(232,197,71,0.12);--accent-glow:rgba(232,197,71,0.08);
+    --text:#F0F0F0;--text-dim:#555;--text-mid:#888;
     --green:#4ADE80;--green-dim:rgba(74,222,128,0.12);
     --blue:#60A5FA;--blue-dim:rgba(96,165,250,0.12);
     --red:#F87171;--red-dim:rgba(248,113,113,0.12);
     --orange:#FB923C;--orange-dim:rgba(251,146,60,0.12);
     --purple:#C084FC;--purple-dim:rgba(192,132,252,0.12);
+    --shadow:0 2px 8px rgba(0,0,0,0.4);
   }
-  html,body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;min-height:100vh;font-size:14px;-webkit-font-smoothing:antialiased}
+  /* ── Light theme ── */
+  body.light{
+    --bg:#F5F5F0;--card:#FFFFFF;--card2:#F0EFE9;--border:#E0DED8;
+    --accent:#B8960A;--accent-dim:rgba(184,150,10,0.1);--accent-glow:rgba(184,150,10,0.15);
+    --text:#1A1A1A;--text-dim:#999;--text-mid:#666;
+    --green:#16A34A;--green-dim:rgba(22,163,74,0.1);
+    --blue:#2563EB;--blue-dim:rgba(37,99,235,0.1);
+    --red:#DC2626;--red-dim:rgba(220,38,38,0.1);
+    --orange:#D97706;--orange-dim:rgba(217,119,6,0.1);
+    --purple:#7C3AED;--purple-dim:rgba(124,58,237,0.1);
+    --shadow:0 2px 8px rgba(0,0,0,0.08);
+  }
+  body.light select option{background:#fff;color:#1A1A1A}
+  body.light .header{background:rgba(245,245,240,0.95)}
+  body.light .field-input[type="date"]{color-scheme:light}
+  html,body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;min-height:100vh;font-size:14px;-webkit-font-smoothing:antialiased;transition:background .2s,color .2s}
   input,select,button{font-family:inherit}
   input:focus,select:focus{outline:none;border-color:var(--accent)!important;box-shadow:0 0 0 3px var(--accent-glow)}
-  select option{background:#1C1C1C}
+  select option{background:var(--card2)}
   ::-webkit-scrollbar{width:4px}::-webkit-scrollbar-track{background:transparent}::-webkit-scrollbar-thumb{background:var(--border);border-radius:2px}
   .app{display:flex;flex-direction:column;min-height:100vh}
   /* Header */
-  .header{border-bottom:1px solid var(--border);padding:0 28px;position:sticky;top:0;background:rgba(13,13,13,0.95);backdrop-filter:blur(8px);z-index:100}
+  .header{border-bottom:1px solid var(--border);padding:0 28px;position:sticky;top:0;background:rgba(13,13,13,0.95);backdrop-filter:blur(8px);z-index:100;transition:background .2s}
   .header-inner{max-width:1040px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;height:56px}
   .logo{display:flex;align-items:center;gap:12px}
   .logo-bar{background:var(--accent);width:4px;height:26px;border-radius:2px}
   .logo-text{display:flex;flex-direction:column;gap:1px}
   .logo-name{font-family:'Syne',sans-serif;font-weight:800;font-size:14px;letter-spacing:.06em}
   .logo-sub{font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--text-dim);letter-spacing:.14em}
-  .header-right{display:flex;align-items:center;gap:12px}
+  .header-right{display:flex;align-items:center;gap:10px}
   .header-user{display:flex;align-items:center;gap:10px;background:var(--card2);border:1px solid var(--border);border-radius:20px;padding:5px 14px}
   .header-user-name{font-family:'Syne',sans-serif;font-weight:600;font-size:12px}
   .header-user-role{font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--text-dim)}
   .btn-signout{background:none;border:none;color:var(--text-dim);cursor:pointer;font-size:11px;font-family:'JetBrains Mono',monospace;transition:color .15s;padding:0}
   .btn-signout:hover{color:var(--red)}
+  .theme-toggle{background:var(--card2);border:1px solid var(--border);color:var(--text-mid);width:32px;height:32px;border-radius:50%;cursor:pointer;font-size:15px;display:flex;align-items:center;justify-content:center;transition:all .15s;flex-shrink:0}
+  .theme-toggle:hover{border-color:var(--accent);color:var(--accent)}
   .sync-dot{width:6px;height:6px;border-radius:50%;background:var(--green);flex-shrink:0;display:inline-block}
   .sync-dot.syncing{background:var(--accent);animation:pulse 1s infinite}
   .sync-dot.error{background:var(--red)}
   @keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
   /* Tabs */
-  .tabs{border-bottom:1px solid var(--border);padding:0 28px}
+  .tabs{border-bottom:1px solid var(--border);padding:0 28px;background:var(--bg);transition:background .2s}
   .tabs-inner{max-width:1040px;margin:0 auto;display:flex}
   .tab{background:none;border:none;border-bottom:2px solid transparent;padding:14px 20px;font-family:'Syne',sans-serif;font-weight:700;font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--text-dim);cursor:pointer;transition:all .2s;margin-bottom:-1px}
   .tab.active{color:var(--accent);border-bottom-color:var(--accent)}
   .tab:hover:not(.active){color:var(--text-mid)}
   /* Sub-tabs */
-  .subtabs{display:flex;gap:4px;margin-bottom:28px}
+  .subtabs{display:flex;gap:4px;margin-bottom:24px;flex-wrap:wrap}
   .subtab{background:none;border:1px solid var(--border);color:var(--text-dim);padding:7px 16px;font-family:'Syne',sans-serif;font-weight:700;font-size:11px;letter-spacing:.08em;text-transform:uppercase;cursor:pointer;border-radius:5px;transition:all .2s}
-  .subtab.active{background:var(--accent-dim);border-color:rgba(232,197,71,.4);color:var(--accent)}
-  .subtab:hover:not(.active){border-color:var(--text-dim);color:var(--text-mid)}
+  .subtab.active{background:var(--accent-dim);border-color:var(--accent);color:var(--accent)}
+  .subtab:hover:not(.active){border-color:var(--text-mid);color:var(--text-mid)}
   /* Content */
-  .content{max-width:1040px;margin:0 auto;padding:36px 28px;flex:1;width:100%}
-  .content-narrow{max-width:680px;margin:0 auto;padding:36px 28px;flex:1;width:100%}
+  .content{max-width:1040px;margin:0 auto;padding:32px 28px;flex:1;width:100%}
+  .content-narrow{max-width:680px;margin:0 auto;padding:32px 28px;flex:1;width:100%}
   /* Fields */
   .field-label{display:block;font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--text-dim);letter-spacing:.12em;text-transform:uppercase;margin-bottom:8px}
-  .field-input{width:100%;background:var(--card2);border:1px solid var(--border);color:var(--text);font-size:14px;padding:10px 14px;border-radius:5px;transition:border-color .2s,box-shadow .2s}
+  .field-input{width:100%;background:var(--card2);border:1px solid var(--border);color:var(--text);font-size:14px;padding:10px 14px;border-radius:6px;transition:border-color .2s,box-shadow .2s}
   .field-input::placeholder{color:var(--text-dim)}
-  .field-input[type="date"]{color-scheme:dark}
+  .field-input[type="date"]{color-scheme:dark;cursor:pointer}
   .field-input[type="url"]{color:var(--blue)}
-  .toggle-group{display:flex;background:var(--card2);border:1px solid var(--border);border-radius:5px;overflow:hidden}
+  .toggle-group{display:flex;background:var(--card2);border:1px solid var(--border);border-radius:6px;overflow:hidden}
   .toggle-btn{flex:1;padding:9px 8px;border:none;background:none;cursor:pointer;font-size:13px;color:var(--text-dim);transition:all .15s}
   .toggle-btn.active{color:var(--accent);background:var(--accent-dim);font-weight:500}
   /* Buttons */
-  .btn-primary{background:var(--accent);color:#0D0D0D;border:none;padding:12px 28px;font-family:'Syne',sans-serif;font-weight:700;font-size:13px;letter-spacing:.06em;cursor:pointer;border-radius:5px;transition:opacity .2s;width:100%}
+  .btn-primary{background:var(--accent);color:#0D0D0D;border:none;padding:12px 28px;font-family:'Syne',sans-serif;font-weight:700;font-size:13px;letter-spacing:.06em;cursor:pointer;border-radius:6px;transition:opacity .2s;width:100%}
   .btn-primary:hover:not(:disabled){opacity:.88}
   .btn-primary:disabled{opacity:.35;cursor:not-allowed}
-  .btn-ghost{background:none;border:1px solid var(--border);color:var(--text-mid);padding:9px 18px;font-size:13px;cursor:pointer;border-radius:5px;transition:all .2s}
-  .btn-ghost:hover{border-color:var(--text-dim);color:var(--text)}
-  .btn-ghost-sm{background:none;border:1px solid var(--border);color:var(--text-mid);padding:7px 14px;font-size:12px;cursor:pointer;border-radius:4px;transition:all .2s}
+  .btn-ghost{background:none;border:1px solid var(--border);color:var(--text-mid);padding:9px 18px;font-size:13px;cursor:pointer;border-radius:6px;transition:all .2s}
+  .btn-ghost:hover{border-color:var(--text-mid);color:var(--text)}
+  .btn-ghost-sm{background:none;border:1px solid var(--border);color:var(--text-mid);padding:7px 14px;font-size:12px;cursor:pointer;border-radius:5px;transition:all .2s}
   .btn-ghost-sm:hover{border-color:var(--accent);color:var(--accent)}
   .btn-remove{background:none;border:1px solid transparent;color:var(--text-dim);padding:4px 10px;font-size:12px;cursor:pointer;border-radius:4px;transition:all .15s}
-  .btn-remove:hover{border-color:var(--red-dim);color:var(--red);background:var(--red-dim)}
+  .btn-remove:hover{border-color:var(--red);color:var(--red);background:var(--red-dim)}
   .btn-edit{background:none;border:1px solid var(--border);color:var(--text-mid);padding:4px 10px;font-size:11px;font-family:'JetBrains Mono',monospace;cursor:pointer;border-radius:4px;transition:all .15s}
   .btn-edit:hover{border-color:var(--accent);color:var(--accent)}
   .btn-del{background:none;border:1px solid transparent;color:var(--text-dim);padding:4px 10px;font-size:11px;font-family:'JetBrains Mono',monospace;cursor:pointer;border-radius:4px;transition:all .15s}
-  .btn-del:hover{border-color:var(--red-dim);color:var(--red);background:var(--red-dim)}
+  .btn-del:hover{border-color:var(--red);color:var(--red);background:var(--red-dim)}
   .btn-note{background:none;border:1px solid var(--border);color:var(--text-dim);padding:4px 10px;font-size:11px;font-family:'JetBrains Mono',monospace;cursor:pointer;border-radius:4px;transition:all .15s}
   .btn-note:hover{border-color:var(--purple);color:var(--purple);background:var(--purple-dim)}
-  .btn-note.has-note{border-color:rgba(192,132,252,.4);color:var(--purple);background:var(--purple-dim)}
+  .btn-note.has-note{border-color:var(--purple);color:var(--purple);background:var(--purple-dim)}
   /* Cards */
-  .task-card{background:var(--card);border:1px solid var(--border);border-radius:8px;padding:18px;margin-bottom:12px}
+  .task-card{background:var(--card);border:1px solid var(--border);border-radius:8px;padding:18px;margin-bottom:12px;box-shadow:var(--shadow)}
   .task-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px}
   .task-num{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--text-dim);letter-spacing:.1em}
-  .stat-card{background:var(--card);border:1px solid var(--border);border-radius:8px;padding:20px}
-  .stat-num{font-family:'JetBrains Mono',monospace;font-size:38px;font-weight:500;color:var(--accent);line-height:1;margin-bottom:6px}
+  .stat-card{background:var(--card);border:1px solid var(--border);border-radius:8px;padding:20px;box-shadow:var(--shadow)}
+  .stat-num{font-family:'JetBrains Mono',monospace;font-size:36px;font-weight:500;color:var(--accent);line-height:1;margin-bottom:6px}
   .stat-label{font-size:12px;color:var(--text-dim)}
-  /* Client cards */
-  .client-card{background:var(--card);border:1px solid var(--border);border-radius:8px;padding:20px;transition:border-color .2s}
-  .client-card:hover{border-color:#333}
-  .client-card-name{font-family:'Syne',sans-serif;font-weight:700;font-size:16px;margin-bottom:12px}
-  .client-stat-row{display:flex;gap:16px;margin-bottom:12px;flex-wrap:wrap}
-  .client-stat{display:flex;flex-direction:column;gap:3px}
-  .client-stat-val{font-family:'JetBrains Mono',monospace;font-size:22px;color:var(--accent);line-height:1}
-  .client-stat-lbl{font-size:11px;color:var(--text-dim)}
-  .client-editors{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
+  /* Project cards */
+  .project-card{background:var(--card);border:1px solid var(--border);border-radius:8px;padding:20px;transition:border-color .2s;box-shadow:var(--shadow)}
+  .project-card:hover{border-color:var(--accent)}
+  .project-card-name{font-family:'Syne',sans-serif;font-weight:700;font-size:16px;margin-bottom:12px}
+  .project-stat-row{display:flex;gap:16px;margin-bottom:10px;flex-wrap:wrap}
+  .project-stat{display:flex;flex-direction:column;gap:3px}
+  .project-stat-val{font-family:'JetBrains Mono',monospace;font-size:22px;color:var(--accent);line-height:1}
+  .project-stat-lbl{font-size:11px;color:var(--text-dim)}
+  .project-editors{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
   .editor-tag{background:var(--card2);border:1px solid var(--border);border-radius:12px;padding:3px 10px;font-size:11px;color:var(--text-mid);font-family:'JetBrains Mono',monospace}
-  .clients-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:16px;margin-bottom:28px}
+  .projects-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:14px;margin-bottom:24px}
   /* Capacity */
-  .capacity-section{background:var(--card);border:1px solid var(--border);border-radius:8px;padding:20px;margin-bottom:24px}
-  .capacity-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px}
+  .capacity-section{background:var(--card);border:1px solid var(--border);border-radius:8px;padding:20px;margin-bottom:20px;box-shadow:var(--shadow)}
+  .capacity-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;flex-wrap:wrap;gap:8px}
   .capacity-title{font-family:'Syne',sans-serif;font-weight:700;font-size:13px}
-  .capacity-headline{font-family:'JetBrains Mono',monospace;font-size:28px;font-weight:500;color:var(--accent)}
+  .capacity-headline{font-family:'JetBrains Mono',monospace;font-size:26px;font-weight:500}
   .capacity-headline.low{color:var(--red)}
   .capacity-headline.mid{color:var(--orange)}
   .capacity-headline.high{color:var(--green)}
-  .capacity-rows{display:flex;flex-direction:column;gap:12px}
+  .capacity-rows{display:flex;flex-direction:column;gap:10px}
   .capacity-row{display:flex;align-items:center;gap:12px}
   .capacity-name{width:110px;font-family:'Syne',sans-serif;font-weight:600;font-size:13px;flex-shrink:0}
   .capacity-bar-wrap{flex:1;height:6px;background:var(--border);border-radius:3px;overflow:hidden}
   .capacity-bar-fill{height:100%;border-radius:3px;transition:width .6s ease}
-  .capacity-nums{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--text-dim);width:80px;text-align:right;flex-shrink:0}
+  .capacity-nums{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--text-dim);width:72px;text-align:right;flex-shrink:0}
   .capacity-pct{font-family:'JetBrains Mono',monospace;font-size:11px;width:36px;text-align:right;flex-shrink:0}
+  .holiday-badge{background:var(--orange-dim);border:1px solid var(--orange);border-radius:4px;padding:1px 7px;font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--orange);margin-left:6px}
   /* Table */
-  .data-table{width:100%;background:var(--card);border:1px solid var(--border);border-radius:8px;overflow:hidden;border-collapse:collapse}
+  .data-table{width:100%;background:var(--card);border:1px solid var(--border);border-radius:8px;overflow:hidden;border-collapse:collapse;box-shadow:var(--shadow)}
   .data-table th{padding:11px 16px;text-align:left;font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--text-dim);letter-spacing:.12em;font-weight:400;border-bottom:1px solid var(--border)}
-  .data-table td{padding:13px 16px;border-bottom:1px solid var(--border)}
+  .data-table td{padding:12px 16px;border-bottom:1px solid var(--border)}
   .data-table tr:last-child td{border-bottom:none}
-  .data-table tr:hover td{background:rgba(255,255,255,.01)}
+  .data-table tr:hover td{background:rgba(128,128,128,.03)}
   .data-num{font-family:'JetBrains Mono',monospace;font-size:15px}
   .data-name{font-family:'Syne',sans-serif;font-weight:600;font-size:14px}
   .role-tag{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--text-dim)}
@@ -137,45 +157,45 @@
   /* Log items */
   .log-item{padding:14px 20px;border-bottom:1px solid var(--border)}
   .log-item:last-child{border-bottom:none}
-  .log-meta{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;flex-wrap:wrap;gap:6px}
+  .log-meta{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:8px;flex-wrap:wrap;gap:6px}
   .log-name{font-family:'Syne',sans-serif;font-weight:600;font-size:14px}
   .log-date{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--text-dim)}
-  .log-actions{display:flex;gap:6px;flex-wrap:wrap}
+  .log-actions{display:flex;gap:6px;flex-wrap:wrap;align-items:center}
   .log-tasks{display:flex;flex-wrap:wrap;gap:6px}
   .log-task-pill{display:flex;align-items:center;gap:6px;background:var(--card2);border-radius:5px;padding:5px 10px}
   .log-task-name{font-size:13px;color:var(--text-mid)}
   .log-task-qty{font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--accent)}
   .drive-link{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--blue);text-decoration:none}
   .drive-link:hover{text-decoration:underline}
-  /* Manager note */
-  .manager-note-display{margin-top:8px;background:var(--purple-dim);border:1px solid rgba(192,132,252,.2);border-radius:5px;padding:8px 12px;font-size:12px;color:var(--purple);display:flex;align-items:flex-start;gap:8px}
+  /* Notes */
+  .manager-note-display{margin-top:8px;background:var(--purple-dim);border:1px solid var(--purple);border-radius:5px;padding:8px 12px;font-size:12px;color:var(--purple);display:flex;align-items:flex-start;gap:8px}
   .manager-note-icon{flex-shrink:0;font-size:13px}
   .manager-note-text{flex:1;line-height:1.5}
   .note-edit-row{margin-top:8px;display:flex;gap:8px}
-  .note-edit-input{flex:1;background:var(--card2);border:1px solid rgba(192,132,252,.4);color:var(--text);font-size:13px;padding:8px 12px;border-radius:5px;transition:border-color .2s}
-  .note-edit-input:focus{outline:none;border-color:var(--purple)!important;box-shadow:0 0 0 3px rgba(192,132,252,.1)}
+  .note-edit-input{flex:1;background:var(--card2);border:1px solid var(--purple);color:var(--text);font-size:13px;padding:8px 12px;border-radius:5px;transition:border-color .2s}
+  .note-edit-input:focus{outline:none;border-color:var(--purple)!important;box-shadow:0 0 0 3px var(--purple-dim)}
   .note-edit-input::placeholder{color:var(--text-dim)}
   /* Messages */
-  .success-msg{background:var(--green-dim);border:1px solid rgba(74,222,128,.25);border-radius:6px;padding:12px 16px;color:var(--green);font-size:14px;margin-bottom:16px}
-  .error-msg{background:var(--red-dim);border:1px solid rgba(248,113,113,.25);border-radius:6px;padding:12px 16px;color:var(--red);font-size:14px;margin-bottom:16px}
-  .editing-banner{background:var(--orange-dim);border:1px solid rgba(251,146,60,.3);border-radius:6px;padding:10px 16px;color:var(--orange);font-size:13px;margin-bottom:16px;display:flex;justify-content:space-between;align-items:center}
+  .success-msg{background:var(--green-dim);border:1px solid var(--green);border-radius:6px;padding:12px 16px;color:var(--green);font-size:14px;margin-bottom:16px}
+  .error-msg{background:var(--red-dim);border:1px solid var(--red);border-radius:6px;padding:12px 16px;color:var(--red);font-size:14px;margin-bottom:16px}
+  .editing-banner{background:var(--orange-dim);border:1px solid var(--orange);border-radius:6px;padding:10px 16px;color:var(--orange);font-size:13px;margin-bottom:16px;display:flex;justify-content:space-between;align-items:center}
   /* Auth */
   .auth-screen{max-width:380px;margin:50px auto}
   .auth-title{font-family:'Syne',sans-serif;font-weight:700;font-size:22px;margin-bottom:6px}
   .auth-sub{color:var(--text-dim);font-size:14px;margin-bottom:28px}
   .member-grid{display:flex;flex-direction:column;gap:8px;margin-bottom:20px}
-  .member-btn{background:var(--card);border:1px solid var(--border);color:var(--text);padding:14px 18px;border-radius:8px;cursor:pointer;text-align:left;transition:border-color .15s;display:flex;justify-content:space-between;align-items:center;width:100%}
+  .member-btn{background:var(--card);border:1px solid var(--border);color:var(--text);padding:14px 18px;border-radius:8px;cursor:pointer;text-align:left;transition:border-color .15s;display:flex;justify-content:space-between;align-items:center;width:100%;box-shadow:var(--shadow)}
   .member-btn:hover{border-color:var(--accent)}
   .member-btn-name{font-family:'Syne',sans-serif;font-weight:600;font-size:14px}
   .member-btn-role{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--text-dim)}
-  .pin-input{width:100%;background:var(--card2);border:1px solid var(--border);color:var(--text);font-size:28px;letter-spacing:.5em;text-align:center;padding:14px;border-radius:5px;margin-bottom:12px;transition:border-color .2s,box-shadow .2s;font-family:'JetBrains Mono',monospace}
+  .pin-input{width:100%;background:var(--card2);border:1px solid var(--border);color:var(--text);font-size:28px;letter-spacing:.5em;text-align:center;padding:14px;border-radius:6px;margin-bottom:12px;font-family:'JetBrains Mono',monospace;transition:border-color .2s,box-shadow .2s}
   .pin-input:focus{outline:none;border-color:var(--accent)!important;box-shadow:0 0 0 3px var(--accent-glow)}
-  .pin-hint{font-family:'JetBrains Mono',monospace;font-size:10px;color:#333;text-align:center;margin-top:12px}
+  .pin-hint{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--text-dim);text-align:center;margin-top:12px;opacity:.5}
   .back-btn{background:none;border:none;color:var(--text-dim);cursor:pointer;font-size:13px;display:flex;align-items:center;gap:6px;margin-bottom:20px;padding:0;transition:color .15s}
   .back-btn:hover{color:var(--text)}
   /* Modal */
   .modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.75);display:flex;align-items:center;justify-content:center;z-index:200;padding:20px}
-  .modal{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:28px;max-width:420px;width:100%}
+  .modal{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:28px;max-width:420px;width:100%;box-shadow:0 8px 32px rgba(0,0,0,.4)}
   .modal-title{font-family:'Syne',sans-serif;font-weight:700;font-size:18px;margin-bottom:8px}
   .modal-sub{color:var(--text-dim);font-size:14px;margin-bottom:20px;line-height:1.5}
   .modal-summary{background:var(--card2);border-radius:8px;padding:14px;margin-bottom:20px}
@@ -187,7 +207,7 @@
   .modal-actions .btn-ghost{flex:1}
   .modal-actions .btn-primary{flex:2}
   /* Settings */
-  .settings-section{background:var(--card);border:1px solid var(--border);border-radius:8px;overflow:hidden;margin-bottom:20px}
+  .settings-section{background:var(--card);border:1px solid var(--border);border-radius:8px;overflow:hidden;margin-bottom:20px;box-shadow:var(--shadow)}
   .settings-header{padding:16px 20px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:10px}
   .settings-title{font-family:'Syne',sans-serif;font-weight:700;font-size:14px}
   .settings-hint{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--text-dim)}
@@ -205,39 +225,45 @@
   .pin-row-role{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--text-dim);width:60px}
   .pin-row-input{width:100px;background:var(--card2);border:1px solid var(--border);color:var(--text);font-size:14px;padding:7px 10px;border-radius:5px;font-family:'JetBrains Mono',monospace;letter-spacing:.2em;text-align:center;transition:border-color .2s}
   .pin-row-input:focus{outline:none;border-color:var(--accent)!important}
-  .capacity-target-row{display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid var(--border)}
-  .capacity-target-row:last-child{border-bottom:none}
-  .capacity-target-label{flex:1;font-size:13px}
-  .capacity-target-sub{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--text-dim)}
-  .capacity-target-input{width:70px;background:var(--card2);border:1px solid var(--border);color:var(--text);font-size:14px;padding:7px 10px;border-radius:5px;font-family:'JetBrains Mono',monospace;text-align:center;transition:border-color .2s}
-  .capacity-target-input:focus{outline:none;border-color:var(--accent)!important}
+  .cap-row{display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid var(--border)}
+  .cap-row:last-child{border-bottom:none}
+  .cap-row-label{flex:1}
+  .cap-row-title{font-family:'Syne',sans-serif;font-weight:600;font-size:13px}
+  .cap-row-sub{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--text-dim)}
+  .cap-input{width:70px;background:var(--card2);border:1px solid var(--border);color:var(--text);font-size:14px;padding:7px 10px;border-radius:5px;font-family:'JetBrains Mono',monospace;text-align:center;transition:border-color .2s}
+  .cap-input:focus{outline:none;border-color:var(--accent)!important}
+  .holiday-row{display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid var(--border)}
+  .holiday-row:last-child{border-bottom:none}
+  .holiday-date{font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--accent);flex-shrink:0;width:100px}
+  .holiday-label{flex:1;font-size:13px;color:var(--text-mid)}
   /* Summary report */
-  .summary-report{background:var(--card);border:1px solid var(--border);border-radius:8px;overflow:hidden}
-  .summary-top{padding:28px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:16px}
+  .summary-report{background:var(--card);border:1px solid var(--border);border-radius:8px;overflow:hidden;box-shadow:var(--shadow)}
+  .summary-top{padding:24px 28px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:16px}
   .summary-agency{font-family:'Syne',sans-serif;font-weight:800;font-size:18px;letter-spacing:.06em;color:var(--accent)}
   .summary-period{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--text-dim);margin-top:4px}
   .summary-actions{display:flex;gap:8px;flex-wrap:wrap}
   .summary-section{padding:20px 28px;border-bottom:1px solid var(--border)}
   .summary-section:last-child{border-bottom:none}
-  .summary-section-title{font-family:'Syne',sans-serif;font-weight:700;font-size:12px;letter-spacing:.1em;text-transform:uppercase;color:var(--text-dim);margin-bottom:14px}
-  .summary-kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:0}
+  .summary-section-title{font-family:'Syne',sans-serif;font-weight:700;font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--text-dim);margin-bottom:14px}
+  .summary-kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
   .summary-kpi{background:var(--card2);border-radius:6px;padding:14px}
-  .summary-kpi-num{font-family:'JetBrains Mono',monospace;font-size:26px;color:var(--accent);line-height:1;margin-bottom:4px}
+  .summary-kpi-num{font-family:'JetBrains Mono',monospace;font-size:24px;color:var(--accent);line-height:1;margin-bottom:4px}
   .summary-kpi-lbl{font-size:11px;color:var(--text-dim)}
   .summary-table{width:100%;border-collapse:collapse}
   .summary-table th{padding:8px 12px;text-align:left;font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--text-dim);letter-spacing:.1em;border-bottom:1px solid var(--border)}
   .summary-table td{padding:10px 12px;border-bottom:1px solid var(--border);font-size:13px}
   .summary-table tr:last-child td{border-bottom:none}
-  .top-performer{background:var(--accent-dim);border:1px solid rgba(232,197,71,.2);border-radius:6px;padding:14px 18px;display:flex;align-items:center;gap:14px}
-  .top-performer-icon{font-size:24px}
+  .top-performer{background:var(--accent-dim);border:1px solid var(--accent);border-radius:8px;padding:16px 20px;display:flex;align-items:center;gap:16px}
+  .top-performer-icon{font-size:28px}
   .top-performer-name{font-family:'Syne',sans-serif;font-weight:700;font-size:16px}
-  .top-performer-sub{font-size:12px;color:var(--text-dim);margin-top:2px}
+  .top-performer-sub{font-size:12px;color:var(--text-dim);margin-top:3px}
   /* Insight */
-  .insight-card{background:var(--card);border:1px solid var(--border);border-radius:8px;padding:18px 20px;display:flex;align-items:flex-start;gap:14px;margin-bottom:12px}
+  .insight-card{background:var(--card);border:1px solid var(--border);border-radius:8px;padding:16px 20px;display:flex;align-items:flex-start;gap:14px;margin-bottom:10px;box-shadow:var(--shadow)}
   .insight-icon{font-size:18px;flex-shrink:0;margin-top:2px}
   .insight-title{font-family:'Syne',sans-serif;font-weight:600;font-size:13px;margin-bottom:4px}
   .insight-text{font-size:13px;color:var(--text-dim);line-height:1.5}
   /* Misc */
+  .section-header-row{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:20px;flex-wrap:wrap;gap:14px}
   .divider{height:1px;background:var(--border);margin:24px 0}
   .empty{padding:32px;text-align:center;color:var(--text-dim);font-size:14px}
   .loading-screen{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:60vh;gap:16px}
@@ -247,8 +273,11 @@
   .bar-wrap{display:flex;align-items:center;gap:8px}
   .bar-bg{flex:1;height:4px;background:var(--border);border-radius:2px;overflow:hidden}
   .bar-fill{height:100%;border-radius:2px;background:var(--accent)}
-  @keyframes fadeIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
-  .fade-in{animation:fadeIn .3s ease forwards}
+  .section-toggle{display:flex;gap:4px;margin-bottom:20px}
+  .section-toggle-btn{background:none;border:1px solid var(--border);color:var(--text-dim);padding:5px 14px;font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:.08em;text-transform:uppercase;cursor:pointer;border-radius:4px;transition:all .15s}
+  .section-toggle-btn.active{background:var(--blue-dim);border-color:var(--blue);color:var(--blue)}
+  @keyframes fadeIn{from{opacity:0;transform:translateY(5px)}to{opacity:1;transform:translateY(0)}}
+  .fade-in{animation:fadeIn .25s ease forwards}
   .grid-2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
   .grid-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px}
   .grid-4{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}
@@ -258,13 +287,13 @@
     .header,.tabs{padding:0 16px}
     .tab{padding:14px 10px;font-size:10px}
     .header-user-role,.logo-sub{display:none}
-    .clients-grid{grid-template-columns:1fr}
+    .projects-grid{grid-template-columns:1fr}
   }
   @media print{
     .header,.tabs,.subtabs,.summary-actions,.btn-primary,.btn-ghost,.btn-ghost-sm{display:none!important}
-    .summary-report{border:none}
-    body{background:#fff;color:#000}
-    :root{--bg:#fff;--card:#fff;--card2:#f5f5f5;--border:#e0e0e0;--text:#000;--text-dim:#666;--text-mid:#444;--accent:#b8960a}
+    .summary-report{border:none;box-shadow:none}
+    body,html{background:#fff!important;color:#000!important}
+    :root,body.light{--bg:#fff;--card:#fff;--card2:#f5f5f5;--border:#e0e0e0;--text:#000;--text-dim:#666;--text-mid:#444;--accent:#9a7a00}
   }
 </style>
 </head>
@@ -286,6 +315,7 @@ const DEFAULT_CONFIG={
   clients:["Client A","Client B"],
   internal_projects:["Own Brand Content","Agency Showreel"],
   capacity_targets:{editor:3,designer:5},
+  holidays:[],
 };
 
 // ── Supabase ──────────────────────────────────────────────────────────────────
@@ -295,7 +325,7 @@ async function sb(path,method="GET",body=null){
   const t=await r.text();return t?JSON.parse(t):null;
 }
 const getConfig=async()=>{const r=await sb("config?id=eq.1&select=*");return r&&r.length?r[0]:null;};
-const saveConfigDB=async cfg=>sb("config?id=eq.1","PATCH",{pin:cfg.pin,team:cfg.team,clients:cfg.clients,internal_projects:cfg.internal_projects,capacity_targets:cfg.capacity_targets});
+const saveConfigDB=async cfg=>sb("config?id=eq.1","PATCH",{pin:cfg.pin,team:cfg.team,clients:cfg.clients,internal_projects:cfg.internal_projects,capacity_targets:cfg.capacity_targets,holidays:cfg.holidays||[]});
 const getEntries=async()=>sb("entries?select=*&order=submitted_at.desc");
 const insertEntry=async e=>sb("entries","POST",{id:e.id,member_id:e.memberId,member_name:e.memberName,role:e.role,date:e.date,tasks:e.tasks,submitted_at:e.submittedAt});
 const patchEntry=async(id,tasks)=>sb(`entries?id=eq.${id}`,"PATCH",{tasks});
@@ -309,43 +339,63 @@ const fmtDate=d=>d?new Date(d+"T00:00:00").toLocaleDateString("en-GB",{day:"nume
 const fmtDateShort=d=>d?new Date(d+"T00:00:00").toLocaleDateString("en-GB",{day:"numeric",month:"short"}):"—";
 const monthLabel=ym=>{const[y,m]=ym.split("-");return new Date(+y,+m-1,1).toLocaleDateString("en-GB",{month:"long",year:"numeric"});};
 const getMonths=()=>{const o=[],n=new Date();for(let i=0;i<6;i++){const d=new Date(n.getFullYear(),n.getMonth()-i,1);o.push(`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}`);}return o;};
-const weekStart=date=>{const d=new Date(date),day=d.getDay(),diff=d.getDate()-day+(day===0?-6:1);d.setDate(diff);return d.toISOString().slice(0,10);};
-const weekEnd=ws=>{const d=new Date(ws+"T00:00:00");d.setDate(d.getDate()+6);return d.toISOString().slice(0,10);};
-const getWeeks=()=>{const o=[],n=new Date();for(let i=0;i<12;i++){const d=new Date(n);d.setDate(d.getDate()-i*7);o.push(weekStart(d));}return[...new Set(o)];};
-const fmtWeek=ws=>{const s=new Date(ws+"T00:00:00"),e=new Date(ws+"T00:00:00");e.setDate(e.getDate()+6);const f=d=>d.toLocaleDateString("en-GB",{day:"numeric",month:"short"});return`${f(s)} – ${f(e)}`;};
-const getDays=()=>{const o=[],n=new Date();for(let i=0;i<30;i++){const d=new Date(n);d.setDate(d.getDate()-i);o.push(d.toISOString().slice(0,10));}return o;};
 const emptyTask=()=>({id:uid(),project:"",projectType:"client",contentType:"video",quantity:1,driveLink:"",notes:""});
 const norm=e=>({id:e.id,memberId:e.member_id,memberName:e.member_name,role:e.role,date:e.date,tasks:e.tasks||[],submittedAt:e.submitted_at,managerNote:e.manager_note||""});
-// Count working days (Mon-Fri) in a month
-function workingDaysInMonth(ym){
+
+// Working days in month excluding weekends AND holidays
+function workingDaysInMonth(ym,holidays=[]){
   const[y,m]=ym.split("-").map(Number);
   const days=new Date(y,m,0).getDate();
+  const holidaySet=new Set((holidays||[]).map(h=>h.date));
   let count=0;
-  for(let i=1;i<=days;i++){const d=new Date(y,m-1,i).getDay();if(d!==0&&d!==6)count++;}
+  for(let i=1;i<=days;i++){
+    const dateStr=`${y}-${String(m).padStart(2,"0")}-${String(i).padStart(2,"0")}`;
+    const dow=new Date(y,m-1,i).getDay();
+    if(dow!==0&&dow!==6&&!holidaySet.has(dateStr))count++;
+  }
   return count;
+}
+// Get holidays in a month
+function holidaysInMonth(ym,holidays=[]){
+  return(holidays||[]).filter(h=>h.date&&h.date.startsWith(ym));
 }
 
 // ── State ─────────────────────────────────────────────────────────────────────
+const savedTheme=localStorage.getItem("nc_theme")||"dark";
+if(savedTheme==="light")document.body.classList.add("light");
+
 let S={
   loaded:false,tab:"log",sync:"ok",
+  darkMode:savedTheme==="dark",
   entries:[],config:DEFAULT_CONFIG,
+  // auth
   member:null,loginStep:"select",loginSel:null,loginPin:"",loginErr:false,
   managerOk:false,mgrPin:"",mgrPinErr:false,
+  // log form
   date:today(),tasks:[emptyTask()],
   submitting:false,submitted:false,submitErr:"",
   editId:null,confirm:false,
   // dashboard
   dashTab:"overview",
-  view:"monthly",month:getMonths()[0],week:weekStart(new Date()),day:today(),
+  view:"monthly",month:getMonths()[0],day:today(),
+  projectsSubview:"client", // "client" | "internal"
   // notes
   noteEditId:null,noteText:"",noteSaving:false,
   // settings
   newName:"",newRole:"editor",newClient:"",newInternal:"",
   pinEdits:{},capEdits:{},
+  newHolidayDate:"",newHolidayLabel:"",
   newMgrPin:"",newMgrPin2:"",mgrPinMsg:"",
   saved:false,saveErr:"",
 };
 const set=p=>{Object.assign(S,p);render();};
+
+function toggleTheme(){
+  const dark=!S.darkMode;
+  document.body.classList.toggle("light",!dark);
+  localStorage.setItem("nc_theme",dark?"dark":"light");
+  set({darkMode:dark});
+}
 
 // ── Init ──────────────────────────────────────────────────────────────────────
 async function init(){
@@ -357,6 +407,7 @@ async function init(){
       clients:cfg.clients||DEFAULT_CONFIG.clients,
       internal_projects:cfg.internal_projects||DEFAULT_CONFIG.internal_projects,
       capacity_targets:cfg.capacity_targets||DEFAULT_CONFIG.capacity_targets,
+      holidays:cfg.holidays||[],
     }:DEFAULT_CONFIG;
     set({loaded:true,entries:(ents||[]).map(norm),config,sync:"ok"});
   }catch{set({loaded:true,sync:"error"});}
@@ -380,7 +431,12 @@ const addTask=()=>set({tasks:[...S.tasks,emptyTask()]});
 const rmTask=id=>set({tasks:S.tasks.filter(t=>t.id!==id)});
 function startEdit(entry){set({editId:entry.id,date:entry.date,tasks:entry.tasks.map(t=>({...t,id:t.id||uid()})),confirm:false,submitted:false,submitErr:""});window.scrollTo({top:0,behavior:"smooth"});}
 function cancelEdit(){set({editId:null,tasks:[emptyTask()],date:today()});}
-async function doDelete(id){if(!confirm("Delete this entry permanently?"))return;set({sync:"syncing"});try{await removeEntry(id);set({entries:S.entries.filter(e=>e.id!==id),sync:"ok"});}catch{set({sync:"error"});}}
+async function doDelete(id,name,date){
+  if(!confirm(`Delete ${name||"this"}'s entry for ${fmtDate(date)}?\nThey will need to resubmit.`))return;
+  set({sync:"syncing"});
+  try{await removeEntry(id);set({entries:S.entries.filter(e=>e.id!==id),sync:"ok"});}
+  catch{set({sync:"error"});}
+}
 const requestSubmit=()=>{if(!S.member||S.tasks.some(t=>!t.project.trim()))return;set({confirm:true});};
 const cancelConfirm=()=>set({confirm:false});
 async function confirmSubmit(){
@@ -401,8 +457,8 @@ async function confirmSubmit(){
 }
 
 // ── Note actions ──────────────────────────────────────────────────────────────
-function startNote(entry){set({noteEditId:entry.id,noteText:entry.managerNote||""});}
-function cancelNote(){set({noteEditId:null,noteText:""});}
+const startNote=entry=>set({noteEditId:entry.id,noteText:entry.managerNote||""});
+const cancelNote=()=>set({noteEditId:null,noteText:""});
 async function saveNote(){
   set({noteSaving:true,sync:"syncing"});
   try{
@@ -415,7 +471,7 @@ async function saveNote(){
 async function saveConf(cfg){
   set({sync:"syncing",saveErr:""});
   try{await saveConfigDB(cfg);set({config:cfg,saved:true,sync:"ok"});setTimeout(()=>set({saved:false}),2500);}
-  catch{set({saveErr:"Failed to save settings.",sync:"error"});}
+  catch(e){set({saveErr:"Failed to save: "+e.message,sync:"error"});}
 }
 const addMember=()=>{if(!S.newName.trim())return;saveConf({...S.config,team:[...S.config.team,{id:uid(),name:S.newName.trim(),role:S.newRole,memberPin:"0000"}]});set({newName:""});};
 const rmMember=id=>saveConf({...S.config,team:S.config.team.filter(m=>m.id!==id)});
@@ -424,11 +480,16 @@ const rmClient=c=>saveConf({...S.config,clients:S.config.clients.filter(x=>x!==c
 const addInternal=()=>{const v=S.newInternal.trim();if(!v||S.config.internal_projects.includes(v)){set({newInternal:""});return;}saveConf({...S.config,internal_projects:[...S.config.internal_projects,v]});set({newInternal:""});};
 const rmInternal=p=>saveConf({...S.config,internal_projects:S.config.internal_projects.filter(x=>x!==p)});
 function savePins(){const t=S.config.team.map(m=>S.pinEdits[m.id]!==undefined?{...m,memberPin:S.pinEdits[m.id]}:m);saveConf({...S.config,team:t});set({pinEdits:{}});}
-function saveCapacity(){
-  const ct={...S.config.capacity_targets};
-  Object.entries(S.capEdits).forEach(([role,val])=>{ct[role]=parseInt(val)||1;});
-  saveConf({...S.config,capacity_targets:ct});set({capEdits:{}});
+function saveCapacity(){const ct={...S.config.capacity_targets};Object.entries(S.capEdits).forEach(([r,v])=>{ct[r]=parseInt(v)||1;});saveConf({...S.config,capacity_targets:ct});set({capEdits:{}});}
+function addHoliday(){
+  if(!S.newHolidayDate)return;
+  const holidays=[...(S.config.holidays||[])];
+  if(holidays.find(h=>h.date===S.newHolidayDate)){set({newHolidayDate:"",newHolidayLabel:""});return;}
+  holidays.push({date:S.newHolidayDate,label:S.newHolidayLabel||"Holiday"});
+  holidays.sort((a,b)=>a.date.localeCompare(b.date));
+  saveConf({...S.config,holidays});set({newHolidayDate:"",newHolidayLabel:""});
 }
+const rmHoliday=date=>saveConf({...S.config,holidays:(S.config.holidays||[]).filter(h=>h.date!==date)});
 function changeMgrPin(){
   if(!S.newMgrPin||S.newMgrPin.length<4){set({mgrPinMsg:"err:At least 4 characters."});return;}
   if(S.newMgrPin!==S.newMgrPin2){set({mgrPinMsg:"err:PINs don't match."});return;}
@@ -436,13 +497,13 @@ function changeMgrPin(){
   setTimeout(()=>set({mgrPinMsg:""}),3000);
 }
 
-// ── Stats ─────────────────────────────────────────────────────────────────────
+// ── Stats helpers ─────────────────────────────────────────────────────────────
 function getFiltered(){
-  if(S.view==="daily")return{filtered:S.entries.filter(e=>e.date===S.day),label:fmtDate(S.day)};
-  if(S.view==="weekly"){const we=weekEnd(S.week);return{filtered:S.entries.filter(e=>e.date>=S.week&&e.date<=we),label:fmtWeek(S.week)};}
-  return{filtered:S.entries.filter(e=>e.date&&e.date.startsWith(S.month)),label:monthLabel(S.month)};
+  if(S.view==="daily"){return{filtered:S.entries.filter(e=>e.date===S.day),label:fmtDate(S.day)};}
+  const filtered=S.entries.filter(e=>e.date&&e.date.startsWith(S.month));
+  return{filtered,label:monthLabel(S.month)};
 }
-function memberStats(filtered){
+function calcMemberStats(filtered){
   return S.config.team.map(m=>{
     const me=filtered.filter(e=>e.memberId===m.id),all=me.flatMap(e=>e.tasks||[]);
     const videos=all.filter(t=>t.contentType==="video").reduce((a,t)=>a+Number(t.quantity||0),0);
@@ -453,38 +514,29 @@ function memberStats(filtered){
     return{...m,videos,graphics,total:videos+graphics,clientWork:cw,internalWork:iw,daysLogged:days};
   });
 }
-function clientStats(filtered){
+function calcProjectStats(filtered,type){
+  // type: "client" or "internal"
   const map={};
   filtered.forEach(entry=>{
-    (entry.tasks||[]).filter(t=>t.projectType==="client"&&t.project).forEach(t=>{
-      if(!map[t.project])map[t.project]={name:t.project,videos:0,graphics:0,total:0,editors:new Set(),days:new Set()};
+    (entry.tasks||[]).filter(t=>t.projectType===type&&t.project).forEach(t=>{
+      if(!map[t.project])map[t.project]={name:t.project,videos:0,graphics:0,total:0,members:new Set(),days:new Set()};
       const c=map[t.project];
       if(t.contentType==="video")c.videos+=Number(t.quantity||0);
       else c.graphics+=Number(t.quantity||0);
       c.total+=Number(t.quantity||0);
-      c.editors.add(entry.memberName);
+      c.members.add(entry.memberName);
       c.days.add(entry.date);
     });
   });
-  return Object.values(map).map(c=>({...c,editors:[...c.editors],days:c.days.size})).sort((a,b)=>b.total-a.total);
+  return Object.values(map).map(c=>({...c,members:[...c.members],days:c.days.size})).sort((a,b)=>b.total-a.total);
 }
-function capacityStats(filtered,label){
-  // Determine number of working days in period
-  let wDays=1;
-  if(S.view==="monthly")wDays=workingDaysInMonth(S.month);
-  else if(S.view==="weekly")wDays=5;
-  else wDays=1;
+function calcCapacity(filtered){
+  const wDays=S.view==="monthly"?workingDaysInMonth(S.month,S.config.holidays):1;
   const ct=S.config.capacity_targets||{editor:3,designer:5};
-  const ms=memberStats(filtered);
-  const rows=ms.map(m=>{
-    const target=(ct[m.role]||3)*wDays;
-    const pct=target>0?Math.min(Math.round((m.total/target)*100),999):0;
-    return{...m,target,pct};
-  });
-  const totalActual=rows.reduce((a,r)=>a+r.total,0);
-  const totalCap=rows.reduce((a,r)=>a+r.target,0);
-  const overallPct=totalCap>0?Math.min(Math.round((totalActual/totalCap)*100),999):0;
-  return{rows,overallPct,totalActual,totalCap};
+  const ms=calcMemberStats(filtered);
+  const rows=ms.map(m=>{const target=(ct[m.role]||3)*wDays;const pct=target>0?Math.min(Math.round((m.total/target)*100),999):0;return{...m,target,pct};});
+  const ta=rows.reduce((a,r)=>a+r.total,0),tc=rows.reduce((a,r)=>a+r.target,0);
+  return{rows,overallPct:tc>0?Math.min(Math.round((ta/tc)*100),999):0,totalActual:ta,totalCap:tc,wDays};
 }
 
 // ── DOM helpers ───────────────────────────────────────────────────────────────
@@ -518,21 +570,20 @@ function taskPills(tasks){
 }
 function periodControls(){
   const ctrl=el("div",{style:{display:"flex",gap:"10px",alignItems:"center",flexWrap:"wrap"}});
+  // Day / Month toggle only
   const vt=d("toggle-group");
-  [["daily","Day"],["weekly","Week"],["monthly","Month"]].forEach(([v,l])=>vt.appendChild(el("button",{class:`toggle-btn${S.view===v?" active":""}`,style:{padding:"8px 14px"},onClick:()=>set({view:v})},l)));
+  [["daily","Day"],["monthly","Month"]].forEach(([v,l])=>vt.appendChild(el("button",{class:`toggle-btn${S.view===v?" active":""}`,style:{padding:"8px 16px"},onClick:()=>set({view:v})},l)));
   ctrl.appendChild(vt);
   if(S.view==="monthly"){
     const ms=el("select",{class:"field-input",style:{width:"auto",cursor:"pointer"}});
     getMonths().forEach(ym=>{const o=el("option",{value:ym},monthLabel(ym));if(ym===S.month)o.selected=true;ms.appendChild(o);});
     ms.value=S.month;ms.addEventListener("change",e=>set({month:e.target.value}));ctrl.appendChild(ms);
-  }else if(S.view==="weekly"){
-    const ws=el("select",{class:"field-input",style:{width:"auto",cursor:"pointer"}});
-    getWeeks().forEach(w=>{const o=el("option",{value:w},fmtWeek(w));if(w===S.week)o.selected=true;ws.appendChild(o);});
-    ws.value=S.week;ws.addEventListener("change",e=>set({week:e.target.value}));ctrl.appendChild(ws);
   }else{
-    const ds=el("select",{class:"field-input",style:{width:"auto",cursor:"pointer"}});
-    getDays().forEach(dv=>{const o=el("option",{value:dv},fmtDate(dv)+(dv===today()?" (Today)":""));if(dv===S.day)o.selected=true;ds.appendChild(o);});
-    ds.value=S.day;ds.addEventListener("change",e=>set({day:e.target.value}));ctrl.appendChild(ds);
+    // Calendar date input
+    const di=el("input",{class:"field-input",type:"date",value:S.day,style:{width:"auto"}});
+    di.max=today();
+    di.addEventListener("change",e=>set({day:e.target.value}));
+    ctrl.appendChild(di);
   }
   return ctrl;
 }
@@ -548,6 +599,8 @@ function renderHeader(){
     ub.appendChild(el("button",{class:"btn-signout",onClick:logout},"Sign out"));
     right.appendChild(ub);
   }
+  // Theme toggle
+  right.appendChild(el("button",{class:"theme-toggle",onClick:toggleTheme,title:S.darkMode?"Switch to light mode":"Switch to dark mode"},S.darkMode?"☀️":"🌙"));
   right.appendChild(el("span",{class:`sync-dot${S.sync==="syncing"?" syncing":S.sync==="error"?" error":""}`,title:S.sync==="ok"?"Connected":S.sync==="syncing"?"Syncing…":"Error"}));
   hi.appendChild(right);h.appendChild(hi);return h;
 }
@@ -573,9 +626,7 @@ function renderLogin(){
     wrap.appendChild(el("p",{class:"auth-title"},`Hi, ${m.name}`));
     wrap.appendChild(el("p",{class:"auth-sub"},"Enter your PIN to continue."));
     const pi=el("input",{class:"pin-input",type:"password",maxlength:"10",placeholder:"••••",autocomplete:"off"});
-    pi.value=S.loginPin;
-    pi.addEventListener("input",e=>{S.loginPin=e.target.value;});
-    pi.addEventListener("keydown",e=>{if(e.key==="Enter")checkMemberPin();});
+    pi.value=S.loginPin;pi.addEventListener("input",e=>{S.loginPin=e.target.value;});pi.addEventListener("keydown",e=>{if(e.key==="Enter")checkMemberPin();});
     wrap.appendChild(pi);
     if(S.loginErr)wrap.appendChild(el("p",{style:{color:"var(--red)",fontSize:"13px",textAlign:"center",marginBottom:"12px"}},"Incorrect PIN. Try again."));
     else wrap.appendChild(el("div",{style:{height:"12px"}}));
@@ -599,15 +650,14 @@ function renderLog(){
   if(S.submitErr)wrap.appendChild(d("error-msg","⚠ "+S.submitErr));
 
   const tg=d("grid-2");tg.style.marginBottom="20px";
-  const md=el("div",{class:"field-input",style:{background:"var(--bg)",cursor:"not-allowed",display:"flex",alignItems:"center",gap:"8px"}});
+  const md=el("div",{class:"field-input",style:{background:"transparent",cursor:"not-allowed",display:"flex",alignItems:"center",gap:"8px",border:"1px solid var(--border)"}});
   md.appendChild(el("span",{style:{fontFamily:"Syne,sans-serif",fontWeight:"600"}},S.member.name));
   md.appendChild(el("span",{style:{fontFamily:"JetBrains Mono,monospace",fontSize:"10px",color:"var(--text-dim)"}},S.member.role));
   tg.appendChild(fld("Submitting as",md));
   const di=el("input",{class:"field-input",type:"date",value:S.date});
-  di.addEventListener("change",e=>set({date:e.target.value}));
+  di.max=today();di.addEventListener("change",e=>set({date:e.target.value}));
   tg.appendChild(fld("Date",di));
-  wrap.appendChild(tg);
-  wrap.appendChild(lbl("Tasks Completed"));
+  wrap.appendChild(tg);wrap.appendChild(lbl("Tasks Completed"));
 
   S.tasks.forEach((task,idx)=>{
     const card=d("task-card"),hdr=d("task-header");
@@ -632,7 +682,7 @@ function renderLog(){
     ps.addEventListener("change",e=>updTask(task.id,"project",e.target.value==="__other__"?"":e.target.value));
     pr.appendChild(ps);
     if(!ap.includes(task.project)&&task.project!==""){
-      const fi=el("input",{class:"field-input",type:"text",placeholder:"Type project name…",value:task.project,style:{marginTop:"6px"}});
+      const fi=el("input",{class:"field-input",type:"text",placeholder:"Type name…",value:task.project,style:{marginTop:"6px"}});
       fi.addEventListener("input",e=>updTask(task.id,"project",e.target.value));
       pr.appendChild(fi);
     }
@@ -656,27 +706,26 @@ function renderLog(){
   const sb2=el("button",{class:"btn-primary",onClick:requestSubmit});
   sb2.textContent=S.submitting?"Saving…":(isEdit?"Review & Update":"Review & Submit");
   sb2.disabled=!canSubmit||S.submitting;
-  acts.appendChild(sb2);
-  wrap.appendChild(acts);
+  acts.appendChild(sb2);wrap.appendChild(acts);
 
-  // My recent submissions (with manager notes visible)
+  // My recent submissions
   const mine=S.entries.filter(e=>e.memberId===S.member.id).slice(0,10);
   if(mine.length>0){
     wrap.appendChild(el("div",{class:"divider"}));
     wrap.appendChild(el("p",{style:{fontFamily:"Syne,sans-serif",fontWeight:"700",fontSize:"14px",marginBottom:"14px"}},"My Recent Submissions"));
-    const rw=el("div",{style:{background:"var(--card)",border:"1px solid var(--border)",borderRadius:"8px",overflow:"hidden"}});
+    const rw=el("div",{style:{background:"var(--card)",border:"1px solid var(--border)",borderRadius:"8px",overflow:"hidden",boxShadow:"var(--shadow)"}});
     mine.forEach(entry=>{
       const item=d("log-item"),meta=d("log-meta");
       meta.appendChild(el("span",{class:"log-date",style:{fontSize:"12px",color:"var(--text-mid)"}},fmtDate(entry.date)));
       const ea=d("log-actions");
       ea.appendChild(el("button",{class:"btn-edit",onClick:()=>startEdit(entry)},"✏ Edit"));
-      ea.appendChild(el("button",{class:"btn-del",onClick:()=>doDelete(entry.id)},"✕ Delete"));
+      ea.appendChild(el("button",{class:"btn-del",onClick:()=>doDelete(entry.id,entry.memberName,entry.date)},"✕ Delete"));
       meta.appendChild(ea);item.appendChild(meta);
       item.appendChild(taskPills(entry.tasks));
       if(entry.managerNote){
         const n=d("manager-note-display");
         n.appendChild(el("span",{class:"manager-note-icon"},"📌"));
-        n.appendChild(el("span",{class:"manager-note-text"},entry.managerNote));
+        n.appendChild(el("span",{class:"manager-note-text"},"Manager: "+entry.managerNote));
         item.appendChild(n);
       }
       rw.appendChild(item);
@@ -691,7 +740,7 @@ function renderModal(){
   const qty=S.tasks.reduce((a,t)=>a+Number(t.quantity||0),0),isEdit=!!S.editId;
   const overlay=el("div",{class:"modal-overlay"}),modal=el("div",{class:"modal"});
   modal.appendChild(el("p",{class:"modal-title"},isEdit?"Confirm Edit":"Confirm Submission"));
-  modal.appendChild(el("p",{class:"modal-sub"},"Please double-check before confirming. Name is locked — you cannot submit as someone else."));
+  modal.appendChild(el("p",{class:"modal-sub"},"Please double-check before confirming. Your name is locked."));
   const sum=d("modal-summary");
   [[`Submitting as`,S.member.name],["Date",fmtDate(S.date)],["Tasks",`${S.tasks.length} task${S.tasks.length!==1?"s":""}`],["Total pieces",String(qty)]].forEach(([l,v])=>{
     const r=d("modal-row");r.appendChild(el("span",{class:"modal-label"},l));r.appendChild(el("span",{class:"modal-val"},v));sum.appendChild(r);
@@ -720,38 +769,37 @@ function renderMgrPin(){
   return el("div",{class:"content-narrow"},wrap);
 }
 
-// ── Dashboard: Overview ───────────────────────────────────────────────────────
+// ── Overview sub-tab ──────────────────────────────────────────────────────────
 function renderOverview(filtered,label){
-  const ms=memberStats(filtered),wrap=d("fade-in");
+  const ms=calcMemberStats(filtered),wrap=d("fade-in");
   const tv=ms.reduce((a,m)=>a+m.videos,0),tg=ms.reduce((a,m)=>a+m.graphics,0),tot=tv+tg;
   const cl=ms.reduce((a,m)=>a+m.clientWork,0),cp=tot>0?Math.round((cl/tot)*100):0;
   const mx=Math.max(...ms.map(m=>m.total),1);
   const rec=[...filtered].sort((a,b)=>(b.submittedAt||"").localeCompare(a.submittedAt||"")).slice(0,15);
 
   // Stat cards
-  const sg=d("grid-4");sg.style.cssText="margin-bottom:20px";
+  const sg=d("grid-4");sg.style.marginBottom="20px";
   [{num:tv,label:"Videos Edited"},{num:tg,label:"Graphics Made"},{num:tot,label:"Total Output"},{num:cp+"%",label:"Client Work"}].forEach(s=>{
     const c=d("stat-card");c.appendChild(el("div",{class:"stat-num"},String(s.num)));c.appendChild(el("div",{class:"stat-label"},s.label));sg.appendChild(c);
   });
   wrap.appendChild(sg);
 
-  // Capacity section
-  const cap=capacityStats(filtered,label);
+  // Capacity
+  const cap=calcCapacity(filtered);
   const capColor=cap.overallPct>=80?"high":cap.overallPct>=50?"mid":"low";
   const cs=d("capacity-section");
   const ch=d("capacity-header");
-  ch.appendChild(el("span",{class:"capacity-title"},"Team Utilization"));
-  const hl=el("div",{});
+  ch.appendChild(el("div",{},el("span",{class:"capacity-title"},"Team Utilization"),S.view==="monthly"?el("span",{class:"holiday-badge"},`${cap.wDays} working days`):null));
+  const hl=el("div",{style:{display:"flex",alignItems:"baseline",gap:"8px"}});
   hl.appendChild(el("span",{class:`capacity-headline ${capColor}`},cap.overallPct+"%"));
-  hl.appendChild(el("span",{style:{fontFamily:"JetBrains Mono,monospace",fontSize:"11px",color:"var(--text-dim)",marginLeft:"8px"}},`${cap.totalActual} of ${cap.totalCap} target pieces`));
+  hl.appendChild(el("span",{style:{fontFamily:"JetBrains Mono,monospace",fontSize:"11px",color:"var(--text-dim)"}},`${cap.totalActual}/${cap.totalCap} pieces`));
   ch.appendChild(hl);cs.appendChild(ch);
   const cr=d("capacity-rows");
   cap.rows.forEach(r=>{
     const row=d("capacity-row");
     row.appendChild(el("span",{class:"capacity-name"},r.name));
     const bw=d("capacity-bar-wrap"),bf=d("capacity-bar-fill");
-    const pct=Math.min(r.pct,100);
-    bf.style.width=pct+"%";
+    bf.style.width=Math.min(r.pct,100)+"%";
     bf.style.background=r.pct>=80?"var(--green)":r.pct>=50?"var(--orange)":"var(--red)";
     bw.appendChild(bf);row.appendChild(bw);
     row.appendChild(el("span",{class:"capacity-nums"},`${r.total}/${r.target}`));
@@ -761,7 +809,7 @@ function renderOverview(filtered,label){
   cs.appendChild(cr);wrap.appendChild(cs);
 
   // Team table
-  const tw=el("div",{style:{background:"var(--card)",border:"1px solid var(--border)",borderRadius:"8px",marginBottom:"24px",overflowX:"auto"}});
+  const tw=el("div",{style:{background:"var(--card)",border:"1px solid var(--border)",borderRadius:"8px",marginBottom:"20px",overflowX:"auto",boxShadow:"var(--shadow)"}});
   tw.appendChild(el("div",{class:"table-header-bar"},el("span",{class:"table-title"},"Team Breakdown")));
   const table=el("table",{class:"data-table"});
   table.appendChild(el("thead",{},el("tr",{},...["Member","Videos","Graphics","Total","Client","Internal","Days","Output"].map(h=>el("th",{},h.toUpperCase())))));
@@ -791,7 +839,7 @@ function renderOverview(filtered,label){
   if(tot===0)insights.push({i:"📋",t:"No data yet",x:"Once your team logs their work, insights appear here."});
   const inactive=ms.filter(m=>m.daysLogged===0).map(m=>m.name);
   if(inactive.length>0&&tot>0)insights.push({i:"🔴",t:"No submissions",x:`${inactive.join(", ")} ${inactive.length>1?"have":"has"} not logged this period.`});
-  if(cap.overallPct<50&&tot>0)insights.push({i:"📉",t:"Low Utilization",x:`Team is at ${cap.overallPct}% capacity. Either get more work in, or reassess daily targets in Settings.`});
+  if(cap.overallPct<50&&tot>0)insights.push({i:"📉",t:"Low Utilization",x:`Team is at ${cap.overallPct}% capacity. Get more work in, or adjust daily targets in Settings.`});
   if(insights.length>0){
     wrap.appendChild(el("div",{style:{marginBottom:"12px"}},el("span",{class:"table-title"},"Insights")));
     insights.forEach(ins=>{
@@ -802,8 +850,8 @@ function renderOverview(filtered,label){
     wrap.appendChild(el("div",{style:{height:"12px"}}));
   }
 
-  // Recent submissions with manager notes
-  const rw=el("div",{style:{background:"var(--card)",border:"1px solid var(--border)",borderRadius:"8px",overflow:"hidden"}});
+  // Recent submissions with manager controls
+  const rw=el("div",{style:{background:"var(--card)",border:"1px solid var(--border)",borderRadius:"8px",overflow:"hidden",boxShadow:"var(--shadow)"}});
   const rh=d("table-header-bar");
   rh.appendChild(el("span",{class:"table-title"},"Recent Submissions"));
   rh.appendChild(el("span",{style:{fontFamily:"JetBrains Mono,monospace",fontSize:"10px",color:"var(--text-dim)"}},`Last 15 · ${label}`));
@@ -816,22 +864,18 @@ function renderOverview(filtered,label){
     left.appendChild(el("span",{style:{fontFamily:"JetBrains Mono,monospace",fontSize:"10px",color:"var(--text-dim)",marginLeft:"10px"}},fmtDateShort(entry.date)));
     meta.appendChild(left);
     const ea=d("log-actions");
-    const noteBtn=el("button",{class:`btn-note${entry.managerNote?" has-note":""}`,onClick:()=>S.noteEditId===entry.id?cancelNote():startNote(entry)},entry.managerNote?"📌 Note":"+ Note");
-    ea.appendChild(noteBtn);
-    const mgrDelBtn=el("button",{class:"btn-del",onClick:async()=>{if(!confirm(`Delete ${entry.memberName}'s entry for ${fmtDate(entry.date)}? They will need to resubmit.`))return;set({sync:"syncing"});try{await removeEntry(entry.id);set({entries:S.entries.filter(e=>e.id!==entry.id),sync:"ok"});}catch{set({sync:"error"});}}},"✕ Delete");
-    ea.appendChild(mgrDelBtn);
+    ea.appendChild(el("button",{class:`btn-note${entry.managerNote?" has-note":""}`,onClick:()=>S.noteEditId===entry.id?cancelNote():startNote(entry)},entry.managerNote?"📌 Edit Note":"+ Note"));
+    ea.appendChild(el("button",{class:"btn-del",onClick:()=>doDelete(entry.id,entry.memberName,entry.date)},"✕ Delete"));
     meta.appendChild(ea);item.appendChild(meta);
     item.appendChild(taskPills(entry.tasks));
-    // Note display or edit
     if(S.noteEditId===entry.id){
       const nr=d("note-edit-row");
-      const ni=el("input",{class:"note-edit-input",type:"text",placeholder:"Add a manager note… (visible to the employee)",value:S.noteText});
+      const ni=el("input",{class:"note-edit-input",type:"text",placeholder:"Add feedback note… (visible to employee)",value:S.noteText});
       ni.addEventListener("input",e=>{S.noteText=e.target.value;});
       ni.addEventListener("keydown",e=>{if(e.key==="Enter")saveNote();if(e.key==="Escape")cancelNote();});
       const sb3=el("button",{class:"btn-ghost-sm",onClick:saveNote},S.noteSaving?"Saving…":"Save");
       sb3.disabled=S.noteSaving;
-      const cb2=el("button",{class:"btn-remove",onClick:cancelNote},"✕");
-      nr.appendChild(ni);nr.appendChild(sb3);nr.appendChild(cb2);
+      nr.appendChild(ni);nr.appendChild(sb3);nr.appendChild(el("button",{class:"btn-remove",onClick:cancelNote},"✕"));
       item.appendChild(nr);
     }else if(entry.managerNote){
       const n=d("manager-note-display");
@@ -845,169 +889,189 @@ function renderOverview(filtered,label){
   return wrap;
 }
 
-// ── Dashboard: Clients ────────────────────────────────────────────────────────
-function renderClients(filtered,label){
-  const cs=clientStats(filtered),wrap=d("fade-in");
-  const th=el("div",{style:{marginBottom:"20px"}});
-  th.appendChild(el("h3",{style:{fontFamily:"Syne,sans-serif",fontWeight:"700",fontSize:"16px"}},"Client Output"));
-  th.appendChild(el("p",{style:{fontSize:"13px",color:"var(--text-dim)",marginTop:"4px"}},`${cs.length} active client${cs.length!==1?"s":""} · ${label}`));
+// ── Projects sub-tab (Client + Internal) ──────────────────────────────────────
+function renderProjects(filtered,label){
+  const wrap=d("fade-in");
+  const th=el("div",{style:{marginBottom:"16px"}});
+  th.appendChild(el("h3",{style:{fontFamily:"Syne,sans-serif",fontWeight:"700",fontSize:"16px"}},"Project Output"));
+  th.appendChild(el("p",{style:{fontSize:"13px",color:"var(--text-dim)",marginTop:"4px"}},label));
   wrap.appendChild(th);
-  if(cs.length===0){wrap.appendChild(el("div",{class:"empty"},"No client work logged for this period."));return wrap;}
 
-  // Client cards grid
-  const grid=d("clients-grid");
-  cs.forEach(c=>{
-    const card=d("client-card");
-    card.appendChild(el("div",{class:"client-card-name"},c.name));
-    const sr=d("client-stat-row");
-    [{v:c.total,l:"Total Pieces"},{v:c.videos,l:"Videos"},{v:c.graphics,l:"Graphics"},{v:c.days,l:"Active Days"}].forEach(s=>{
-      const cs2=d("client-stat");cs2.appendChild(el("div",{class:"client-stat-val"},String(s.v)));cs2.appendChild(el("div",{class:"client-stat-lbl"},s.l));sr.appendChild(cs2);
+  // Client / Internal toggle
+  const tog=d("section-toggle");
+  [["client","Client Projects"],["internal","Internal Projects"]].forEach(([v,l])=>{
+    tog.appendChild(el("button",{class:`section-toggle-btn${S.projectsSubview===v?" active":""}`,onClick:()=>set({projectsSubview:v})},l));
+  });
+  wrap.appendChild(tog);
+
+  const type=S.projectsSubview;
+  const ps=calcProjectStats(filtered,type);
+
+  if(ps.length===0){wrap.appendChild(el("div",{class:"empty"},`No ${type} work logged for this period.`));return wrap;}
+
+  // Project cards
+  const grid=d("projects-grid");
+  ps.forEach(p=>{
+    const card=d("project-card");
+    card.appendChild(el("div",{class:"project-card-name"},p.name));
+    const sr=d("project-stat-row");
+    [{v:p.total,l:"Total"},{v:p.videos,l:"Videos"},{v:p.graphics,l:"Graphics"},{v:p.days,l:"Days"}].forEach(s=>{
+      const ps2=d("project-stat");ps2.appendChild(el("div",{class:"project-stat-val"},String(s.v)));ps2.appendChild(el("div",{class:"project-stat-lbl"},s.l));sr.appendChild(ps2);
     });
     card.appendChild(sr);
-    // Editors (internal only)
-    if(c.editors.length>0){
-      const et=d("client-editors");
-      c.editors.forEach(e=>et.appendChild(el("span",{class:"editor-tag"},e)));
+    if(p.members.length>0){
+      const et=d("project-editors");
+      p.members.forEach(m=>et.appendChild(el("span",{class:"editor-tag"},m)));
       card.appendChild(et);
     }
     grid.appendChild(card);
   });
   wrap.appendChild(grid);
 
-  // Summary table
-  const tw=el("div",{style:{background:"var(--card)",border:"1px solid var(--border)",borderRadius:"8px",overflowX:"auto"}});
-  tw.appendChild(el("div",{class:"table-header-bar"},el("span",{class:"table-title"},"All Clients — Ranked by Output")));
+  // Table
+  const tw=el("div",{style:{background:"var(--card)",border:"1px solid var(--border)",borderRadius:"8px",overflowX:"auto",boxShadow:"var(--shadow)"}});
+  tw.appendChild(el("div",{class:"table-header-bar"},el("span",{class:"table-title"},type==="client"?"All Clients — Ranked by Output":"All Internal Projects — Ranked by Output")));
   const table=el("table",{class:"data-table"});
-  table.appendChild(el("thead",{},el("tr",{},...["Client","Videos","Graphics","Total","Active Days","Team"].map(h=>el("th",{},h.toUpperCase())))));
+  table.appendChild(el("thead",{},el("tr",{},...["Project / Client","Videos","Graphics","Total","Active Days","Team"].map(h=>el("th",{},h.toUpperCase())))));
   const tbody=el("tbody");
-  cs.forEach(c=>{
+  ps.forEach(p=>{
     const tr=el("tr");
-    tr.appendChild(el("td",{},el("span",{class:"data-name"},c.name)));
-    tr.appendChild(el("td",{},el("span",{class:"data-num",style:{color:"var(--accent)"}},String(c.videos))));
-    tr.appendChild(el("td",{},el("span",{class:"data-num",style:{color:"var(--red)"}},String(c.graphics))));
-    tr.appendChild(el("td",{},el("span",{class:"data-num",style:{fontWeight:"600"}},String(c.total))));
-    tr.appendChild(el("td",{},el("span",{class:"role-tag"},c.days+" days")));
-    const etd=el("td",{});
-    c.editors.forEach(e=>etd.appendChild(el("span",{class:"editor-tag",style:{marginRight:"4px"}},e)));
-    tr.appendChild(etd);tbody.appendChild(tr);
+    tr.appendChild(el("td",{},el("span",{class:"data-name"},p.name)));
+    tr.appendChild(el("td",{},el("span",{class:"data-num",style:{color:"var(--accent)"}},String(p.videos))));
+    tr.appendChild(el("td",{},el("span",{class:"data-num",style:{color:"var(--red)"}},String(p.graphics))));
+    tr.appendChild(el("td",{},el("span",{class:"data-num",style:{fontWeight:"600"}},String(p.total))));
+    tr.appendChild(el("td",{},el("span",{class:"role-tag"},p.days+" days")));
+    const etd=el("td",{});p.members.forEach(m=>etd.appendChild(el("span",{class:"editor-tag",style:{marginRight:"4px"}},m)));tr.appendChild(etd);
+    tbody.appendChild(tr);
   });
   table.appendChild(tbody);tw.appendChild(table);wrap.appendChild(tw);
   return wrap;
 }
 
-// ── Dashboard: Summary ────────────────────────────────────────────────────────
+// ── Summary sub-tab ───────────────────────────────────────────────────────────
 function renderSummary(filtered,label){
-  const ms=memberStats(filtered),wrap=d("fade-in");
+  const ms=calcMemberStats(filtered),wrap=d("fade-in");
   const tv=ms.reduce((a,m)=>a+m.videos,0),tg=ms.reduce((a,m)=>a+m.graphics,0),tot=tv+tg;
   const cl=ms.reduce((a,m)=>a+m.clientWork,0),cp=tot>0?Math.round((cl/tot)*100):0;
-  const topPerformer=[...ms].sort((a,b)=>b.total-a.total)[0];
-  const cs2=clientStats(filtered);
+  const topP=[...ms].sort((a,b)=>b.total-a.total)[0];
+  const clientPs=calcProjectStats(filtered,"client");
+  const internalPs=calcProjectStats(filtered,"internal");
+  const holidays=S.view==="monthly"?holidaysInMonth(S.month,S.config.holidays):[];
 
   const report=d("summary-report");
-  // Top bar
+  // Top
   const top=d("summary-top");
-  const topLeft=el("div",{});
-  topLeft.appendChild(el("div",{class:"summary-agency"},"NEED CONSULTANCY"));
-  topLeft.appendChild(el("div",{class:"summary-period"},"Monthly Output Report · "+label));
-  top.appendChild(topLeft);
+  const topL=el("div",{});
+  topL.appendChild(el("div",{class:"summary-agency"},"NEED CONSULTANCY"));
+  topL.appendChild(el("div",{class:"summary-period"},`Output Report · ${label}`));
+  top.appendChild(topL);
   const sa=d("summary-actions");
   sa.appendChild(el("button",{class:"btn-ghost-sm",onClick:()=>{
-    // Copy as plain text
     let txt=`NEED CONSULTANCY — Output Report\n${label}\n\n`;
-    txt+=`SUMMARY\nTotal Output: ${tot} pieces\nVideos: ${tv} | Graphics: ${tg}\nClient Work: ${cp}%\n\n`;
-    txt+="TEAM BREAKDOWN\n";
-    ms.forEach(m=>{txt+=`${m.name}: ${m.total} pieces (${m.videos} videos, ${m.graphics} graphics) — ${m.daysLogged} days logged\n`;});
-    if(cs2.length>0){txt+="\nCLIENT SUMMARY\n";cs2.forEach(c=>{txt+=`${c.name}: ${c.total} pieces\n`;});}
-    if(topPerformer&&topPerformer.total>0)txt+=`\nTOP PERFORMER\n${topPerformer.name} — ${topPerformer.total} pieces`;
-    navigator.clipboard.writeText(txt).then(()=>alert("Report copied to clipboard! Paste into WhatsApp or email.")).catch(()=>alert("Copy failed — try the Print option instead."));
+    txt+=`SUMMARY\nTotal: ${tot} | Videos: ${tv} | Graphics: ${tg} | Client Work: ${cp}%\n\n`;
+    txt+="TEAM\n";ms.forEach(m=>{txt+=`${m.name} (${m.role}): ${m.total} pieces, ${m.daysLogged} days\n`;});
+    if(clientPs.length>0){txt+="\nCLIENTS\n";clientPs.forEach(p=>{txt+=`${p.name}: ${p.total} pieces\n`;});}
+    if(internalPs.length>0){txt+="\nINTERNAL\n";internalPs.forEach(p=>{txt+=`${p.name}: ${p.total} pieces\n`;});}
+    if(topP&&topP.total>0)txt+=`\nTOP PERFORMER: ${topP.name} — ${topP.total} pieces`;
+    navigator.clipboard.writeText(txt).then(()=>alert("Copied! Paste into WhatsApp or email.")).catch(()=>alert("Copy failed — use Print instead."));
   }},"📋 Copy as Text"));
-  sa.appendChild(el("button",{class:"btn-ghost-sm",onClick:()=>window.print()},"🖨 Print / Save PDF"));
+  sa.appendChild(el("button",{class:"btn-ghost-sm",onClick:()=>window.print()},"🖨 Print / PDF"));
   top.appendChild(sa);report.appendChild(top);
 
   // KPIs
-  const kpiSec=d("summary-section");
-  kpiSec.appendChild(el("p",{class:"summary-section-title"},"At a Glance"));
+  const kSec=d("summary-section");kSec.appendChild(el("p",{class:"summary-section-title"},"At a Glance"));
   const kpis=d("summary-kpis");
-  [{n:tot,l:"Total Output"},{n:tv,l:"Videos Edited"},{n:tg,l:"Graphics Made"},{n:cp+"%",l:"Client Work"}].forEach(k=>{
+  [{n:tot,l:"Total Output"},{n:tv,l:"Videos"},{n:tg,l:"Graphics"},{n:cp+"%",l:"Client Work"}].forEach(k=>{
     const c=d("summary-kpi");c.appendChild(el("div",{class:"summary-kpi-num"},String(k.n)));c.appendChild(el("div",{class:"summary-kpi-lbl"},k.l));kpis.appendChild(c);
   });
-  kpiSec.appendChild(kpis);report.appendChild(kpiSec);
+  kSec.appendChild(kpis);report.appendChild(kSec);
 
   // Top performer
-  if(topPerformer&&topPerformer.total>0){
-    const tpSec=d("summary-section");
-    tpSec.appendChild(el("p",{class:"summary-section-title"},"Top Performer"));
-    const tp=d("top-performer");
-    tp.appendChild(el("span",{class:"top-performer-icon"},"🏆"));
-    const tpb=el("div",{});
-    tpb.appendChild(el("div",{class:"top-performer-name"},topPerformer.name));
-    tpb.appendChild(el("div",{class:"top-performer-sub"},`${topPerformer.total} pieces · ${topPerformer.videos} videos · ${topPerformer.graphics} graphics · ${topPerformer.daysLogged} days logged`));
+  if(topP&&topP.total>0){
+    const tpSec=d("summary-section");tpSec.appendChild(el("p",{class:"summary-section-title"},"Top Performer"));
+    const tp=d("top-performer");tp.appendChild(el("span",{class:"top-performer-icon"},"🏆"));
+    const tpb=el("div",{});tpb.appendChild(el("div",{class:"top-performer-name"},topP.name));tpb.appendChild(el("div",{class:"top-performer-sub"},`${topP.total} pieces · ${topP.videos} videos · ${topP.graphics} graphics · ${topP.daysLogged} days`));
     tp.appendChild(tpb);tpSec.appendChild(tp);report.appendChild(tpSec);
   }
 
-  // Team breakdown
-  const tbSec=d("summary-section");
-  tbSec.appendChild(el("p",{class:"summary-section-title"},"Team Breakdown"));
+  // Team
+  const tbSec=d("summary-section");tbSec.appendChild(el("p",{class:"summary-section-title"},"Team Breakdown"));
   const tbl=el("table",{class:"summary-table"});
-  tbl.appendChild(el("thead",{},el("tr",{},...["Team Member","Role","Videos","Graphics","Total","Client","Internal","Days Logged"].map(h=>el("th",{},h.toUpperCase())))));
-  const tbody2=el("tbody");
+  tbl.appendChild(el("thead",{},el("tr",{},...["Name","Role","Videos","Graphics","Total","Client","Internal","Days"].map(h=>el("th",{},h.toUpperCase())))));
+  const tb2=el("tbody");
   ms.forEach(m=>{
     const tr=el("tr");if(m.total===0)tr.style.opacity="0.4";
     [m.name,m.role,m.videos,m.graphics,m.total,m.clientWork,m.internalWork,m.daysLogged+" days"].forEach((v,i)=>{
       const td=el("td",{},String(v));
-      if(i===0)td.style.fontFamily="Syne,sans-serif";if(i===0)td.style.fontWeight="600";
+      if(i===0){td.style.fontFamily="Syne,sans-serif";td.style.fontWeight="600";}
       if(i===4)td.style.fontWeight="700";
       tr.appendChild(td);
     });
-    tbody2.appendChild(tr);
+    tb2.appendChild(tr);
   });
-  tbl.appendChild(tbody2);tbSec.appendChild(tbl);report.appendChild(tbSec);
+  tbl.appendChild(tb2);tbSec.appendChild(tbl);report.appendChild(tbSec);
 
   // Client summary
-  if(cs2.length>0){
-    const csSec=d("summary-section");
-    csSec.appendChild(el("p",{class:"summary-section-title"},"Client Summary"));
+  if(clientPs.length>0){
+    const cSec=d("summary-section");cSec.appendChild(el("p",{class:"summary-section-title"},"Client Summary"));
     const ctbl=el("table",{class:"summary-table"});
-    ctbl.appendChild(el("thead",{},el("tr",{},...["Client","Videos","Graphics","Total Pieces","Active Days"].map(h=>el("th",{},h.toUpperCase())))));
-    const ctbody=el("tbody");
-    cs2.forEach(c=>{
+    ctbl.appendChild(el("thead",{},el("tr",{},...["Client","Videos","Graphics","Total","Active Days"].map(h=>el("th",{},h.toUpperCase())))));
+    const ctb=el("tbody");
+    clientPs.forEach(p=>{
       const tr=el("tr");
-      [c.name,c.videos,c.graphics,c.total,c.days+" days"].forEach((v,i)=>{
+      [p.name,p.videos,p.graphics,p.total,p.days+" days"].forEach((v,i)=>{
         const td=el("td",{},String(v));if(i===0){td.style.fontFamily="Syne,sans-serif";td.style.fontWeight="600";}if(i===3)td.style.fontWeight="700";tr.appendChild(td);
       });
-      ctbody.appendChild(tr);
+      ctb.appendChild(tr);
     });
-    ctbl.appendChild(ctbody);csSec.appendChild(ctbl);report.appendChild(csSec);
+    ctbl.appendChild(ctb);cSec.appendChild(ctbl);report.appendChild(cSec);
   }
 
-  wrap.appendChild(report);
-  return wrap;
+  // Internal summary
+  if(internalPs.length>0){
+    const iSec=d("summary-section");iSec.appendChild(el("p",{class:"summary-section-title"},"Internal Projects Summary"));
+    const itbl=el("table",{class:"summary-table"});
+    itbl.appendChild(el("thead",{},el("tr",{},...["Project","Videos","Graphics","Total","Active Days"].map(h=>el("th",{},h.toUpperCase())))));
+    const itb=el("tbody");
+    internalPs.forEach(p=>{
+      const tr=el("tr");
+      [p.name,p.videos,p.graphics,p.total,p.days+" days"].forEach((v,i)=>{
+        const td=el("td",{},String(v));if(i===0){td.style.fontFamily="Syne,sans-serif";td.style.fontWeight="600";}if(i===3)td.style.fontWeight="700";tr.appendChild(td);
+      });
+      itb.appendChild(tr);
+    });
+    itbl.appendChild(itb);iSec.appendChild(itbl);report.appendChild(iSec);
+  }
+
+  // Holidays note
+  if(holidays.length>0){
+    const hSec=d("summary-section");hSec.appendChild(el("p",{class:"summary-section-title"},"Holidays / Off Days This Period"));
+    holidays.forEach(h=>{
+      hSec.appendChild(el("p",{style:{fontSize:"13px",color:"var(--text-mid)",marginBottom:"4px"}},`${fmtDate(h.date)} — ${h.label}`));
+    });
+    report.appendChild(hSec);
+  }
+
+  wrap.appendChild(report);return wrap;
 }
 
 // ── Dashboard ─────────────────────────────────────────────────────────────────
 function renderDash(){
   const{filtered,label}=getFiltered();
   const wrap=d("fade-in");
+  const top=el("div",{class:"section-header-row"});
+  const left=d("");left.appendChild(el("h2",{class:"section-title"},"Dashboard"));left.appendChild(el("p",{class:"section-sub",style:{marginTop:"4px"}},`${filtered.length} submissions · ${label}`));
+  top.appendChild(left);top.appendChild(periodControls());wrap.appendChild(top);
 
-  // Top row
-  const top=el("div",{style:{display:"flex",justifyContent:"space-between",alignItems:"flex-start",marginBottom:"20px",flexWrap:"wrap",gap:"14px"}});
-  const left=d("");
-  left.appendChild(el("h2",{class:"section-title"},"Dashboard"));
-  left.appendChild(el("p",{class:"section-sub",style:{marginTop:"4px"}},`${filtered.length} submissions · ${label}`));
-  top.appendChild(left);
-  top.appendChild(periodControls());
-  wrap.appendChild(top);
-
-  // Sub-tabs
   const st=d("subtabs");
-  [["overview","Overview"],["clients","Clients"],["summary","Monthly Summary"]].forEach(([id,label2])=>{
-    st.appendChild(el("button",{class:`subtab${S.dashTab===id?" active":""}`,onClick:()=>set({dashTab:id})},label2));
+  [["overview","Overview"],["projects","Projects"],["summary","Monthly Summary"]].forEach(([id,l])=>{
+    st.appendChild(el("button",{class:`subtab${S.dashTab===id?" active":""}`,onClick:()=>set({dashTab:id})},l));
   });
   wrap.appendChild(st);
 
   if(S.dashTab==="overview")wrap.appendChild(renderOverview(filtered,label));
-  else if(S.dashTab==="clients")wrap.appendChild(renderClients(filtered,label));
-  else if(S.dashTab==="summary")wrap.appendChild(renderSummary(filtered,label));
+  else if(S.dashTab==="projects")wrap.appendChild(renderProjects(filtered,label));
+  else wrap.appendChild(renderSummary(filtered,label));
 
   return el("div",{class:"content"},wrap);
 }
@@ -1059,17 +1123,44 @@ function renderSettings(){
   const ct=S.config.capacity_targets||{editor:3,designer:5};
   const roles=[...new Set(S.config.team.map(m=>m.role))];
   roles.forEach(role=>{
-    const row=d("capacity-target-row");
-    const lft=el("div",{});
-    lft.appendChild(el("div",{class:"capacity-target-label",style:{fontFamily:"Syne,sans-serif",fontWeight:"600"}},role.charAt(0).toUpperCase()+role.slice(1)));
-    lft.appendChild(el("div",{class:"capacity-target-sub"},"videos or graphics per day"));
+    const row=d("cap-row");
+    const lft=d("cap-row-label");
+    lft.appendChild(el("div",{class:"cap-row-title"},role.charAt(0).toUpperCase()+role.slice(1)));
+    lft.appendChild(el("div",{class:"cap-row-sub"},"pieces per working day"));
     row.appendChild(lft);
-    const inp=el("input",{class:"capacity-target-input",type:"number",min:"1",max:"99",value:S.capEdits[role]!==undefined?S.capEdits[role]:(ct[role]||3)});
+    const inp=el("input",{class:"cap-input",type:"number",min:"1",max:"99",value:S.capEdits[role]!==undefined?S.capEdits[role]:(ct[role]||3)});
     inp.addEventListener("input",e=>{S.capEdits={...S.capEdits,[role]:e.target.value};});
     row.appendChild(inp);capb.appendChild(row);
   });
   capb.appendChild(el("div",{style:{marginTop:"16px"}},el("button",{class:"btn-ghost-sm",onClick:saveCapacity},"💾 Save Targets")));
   caps.appendChild(capb);wrap.appendChild(caps);
+
+  // Holidays
+  const hs=d("settings-section");
+  const hh=el("div",{class:"settings-header"});hh.appendChild(el("span",{class:"settings-title"},"Holidays & Off Days"));hh.appendChild(el("span",{class:"settings-hint"},"Excluded from capacity calculations"));
+  hs.appendChild(hh);
+  const hb=d("settings-body");
+  const holidays=S.config.holidays||[];
+  if(holidays.length>0){
+    holidays.forEach(h=>{
+      const row=d("holiday-row");
+      row.appendChild(el("span",{class:"holiday-date"},fmtDateShort(h.date)));
+      row.appendChild(el("span",{class:"holiday-label"},h.label||"Holiday"));
+      row.appendChild(el("button",{class:"btn-remove",onClick:()=>rmHoliday(h.date)},"✕"));
+      hb.appendChild(row);
+    });
+  }else{
+    hb.appendChild(el("p",{style:{fontSize:"13px",color:"var(--text-dim)",marginBottom:"14px"}},"No holidays added yet."));
+  }
+  const hAddRow=el("div",{style:{display:"flex",gap:"8px",marginTop:"14px",flexWrap:"wrap"}});
+  const hdInput=el("input",{class:"field-input",type:"date",value:S.newHolidayDate,style:{width:"150px",flexShrink:"0"}});
+  hdInput.addEventListener("change",e=>{S.newHolidayDate=e.target.value;});
+  const hlInput=el("input",{class:"field-input",type:"text",placeholder:"Label (e.g. Eid al-Fitr)",value:S.newHolidayLabel});
+  hlInput.style.flex="1";
+  hlInput.addEventListener("input",e=>{S.newHolidayLabel=e.target.value;});
+  hlInput.addEventListener("keydown",e=>{if(e.key==="Enter")addHoliday();});
+  hAddRow.appendChild(hdInput);hAddRow.appendChild(hlInput);hAddRow.appendChild(el("button",{class:"btn-ghost-sm",onClick:addHoliday},"+ Add"));
+  hb.appendChild(hAddRow);hs.appendChild(hb);wrap.appendChild(hs);
 
   // Clients
   const cs=d("settings-section");cs.appendChild(el("div",{class:"settings-header"},el("span",{class:"settings-title"},"Client Names")));
